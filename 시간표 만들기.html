@@ -4,6 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>시간표 만들기</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&display=swap" rel="stylesheet">
+    
+    <style>
+    body {
+        font-family: "맑은 고딕", sans-serif;
+    }
+
+    h1 {
+        font-family: "Bagel Fat One", system-ui;
+        font-size: 40px;
+        font-weight: bold;
+        color: navy;
+    }
+
+    table {
+        text-align: center;
+    }
+
+    th {
+        background-color: lightblue;
+        font-size: 24px;
+    }
+
+    td {
+        vertical-align: middle;
+        font-size: 18px;
+    }
+
+    .work {
+        background-color: lightyellow;
+    }
+
+    .chapel {
+        background-color: lightpink;
+    }
+
+    .web {
+        background-color: lightgreen;
+    }
+
+    .history {
+        background-color: lightcyan;
+    }
+
+    .machine {
+        background-color: lavender;
+    }
+
+    .ai {
+        background-color: peachpuff;
+    }
+
+    .circuit {
+        background-color: lightsteelblue;
+    }
+
+    .digital {
+        background-color: mistyrose;
+    }
+
+    .career {
+        background-color: wheat;
+    }
+
+    td:first-child {
+    background-color: lightgray;
+    font-weight: bold;
+}
+</style>
+    
 </head>
 <body>
     <h1>2023101007_장현준</h1>
@@ -11,61 +84,61 @@
         <thead>
             <tr>
                 <th></th>
-                <th>월</th>
-                <th>화</th>
-                <th>수</th>
-                <th>목</th>
-                <th>금</th>
+                <th width="170px">월</th>
+                <th width="170px">화</th>
+                <th width="170px">수</th>
+                <th width="170px">목</th>
+                <th width="170px">금</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>9</td>
-                <td rowspan="2">근로</td>
-                <td rowspan="3">웹프로그래밍<br>바울관303호<br>(AIC 프로젝트LAB실)</td>
-                <td rowspan="2">근로</td>
-                <td rowspan="3">근로</td>
-                <td rowspan="3">근로</td>
+                <td height="100px">9</td>
+                <td rowspan="2" class="work">근로</td>
+                <td rowspan="3" class="web">웹프로그래밍<br>바울관303호<br>(AIC 프로젝트LAB실)</td>
+                <td rowspan="2" class="work">근로</td>
+                <td rowspan="3" class="work">근로</td>
+                <td rowspan="3" class="work">근로</td>
                  
             </tr>
             <tr>
-                <td>10</td>
+                <td height="100px">10</td>
             </tr>
             <tr>
-                <td>11</td>
-                <td>채플<br>대강당(메인)</td>
-                <td rowspan="2">역사와 문화<br>다니엘관304호(大)</td>    
+                <td height="100px">11</td>
+                <td class="chapel">채플<br>대강당(메인)</td>
+                <td rowspan="2" class="history">역사와 문화<br>다니엘관304호(大)</td>    
             </tr>
             <tr>
-                <td>12</td>
+                <td height="100px">12</td>
                 <td></td>
-                <td rowspan="3">기계학습<br>제1실습관308호<br>(전산원관리)컴퓨터<br>강의실</td>
+                <td rowspan="3" class="machine">기계학습<br>제1실습관308호<br>(전산원관리)컴퓨터<br>강의실</td>
                 <td></td>
                 <td></td> 
             </tr>
             <tr>
-                <td>1</td>
-                <td rowspan="2">근로</td>
-                <td rowspan="5">근로</td>
-                <td>근로</td>
-                <td rowspan="3">회로이론I<br>바울관 203호<br>(PBL)강의실</td>                  
+                <td height="100px">1</td>
+                <td rowspan="2" class="work">근로</td>
+                <td rowspan="5" class="work">근로</td>
+                <td class="work">근로</td>
+                <td rowspan="3" class="circuit">회로이론I<br>바울관 203호<br>(PBL)강의실</td>                  
             </tr>
             <tr>
-                <td>2</td>
-                <td rowspan="3">AI반도체공정<br>제1실습관202호강의실</td>                  
+                <td height="100px">2</td>
+                <td rowspan="3" class="ai">AI반도체공정<br>제1실습관202호강의실</td>                  
             </tr>
             <tr>
-                <td>3</td>
-                <td rowspan="3">디지털논리회로I<br>요한관223호<br>(中)(교필토익전용)강의실</td>
-                <td rowspan="2">근로</td>                  
+                <td height="100px">3</td>
+                <td rowspan="3" class="digital">디지털논리회로I<br>요한관223호<br>(中)(교필토익전용)강의실</td>
+                <td rowspan="2" class="work">근로</td>                  
             </tr>
             <tr>
-                <td>4</td>
+                <td height="100px">4</td>
                 <td></td>               
             </tr>
             <tr>
-                <td>5</td>
-                <td>인생설계와 진로II<br>바울관203호(PBL)<br>강의실</td>  
+                <td height="100px">5</td>
+                <td class="career0">인생설계와 진로II<br>바울관203호(PBL)<br>강의실</td>  
                 <td></td>
                 <td></td>              
             </tr>
