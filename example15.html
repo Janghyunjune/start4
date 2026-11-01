@@ -13,6 +13,7 @@
     else {
         alert('홀수 입니다.');
     }*/
+   /*
    if(number >= 90) {
     alert('A 입니다.');
    } else if( number>= 80) {
@@ -23,8 +24,25 @@
     alert('D입니다.');
    }else {
     alert('F입니다.');
+   }*/
+   switch( pasrseInt(number/10) ) {
+    case 10:
+    case 9:
+        alert('A 입니다.');
+        break;
+    case 8:
+        alert('B 입니다.');
+        break;
+    case 7:
+        alert('C 입니다.');
+        break;
+    case 6:
+        alert('D 입니다.');
+        break;
+    default:
+        alert('F 입니다.');
+        break;
    }
-
    
 </script>
 <body>
