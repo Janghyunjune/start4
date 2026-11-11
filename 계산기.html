@@ -16,29 +16,29 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <script>
     $(document).ready(function(){
-    // 1. 숫자 버튼 클릭 시
+    
     $('.num').click(function(){
         let cur = $('#disp2').val();
         let n = $(this).val();
         $('#disp2').val(cur + n);
     });
 
-    // 2. 연산자 및 등호 버튼 클릭 시
+    
     $('.op').click(function(){
         let cur = $('#disp2').val();
         let opt = $(this).val();
 
         if( opt != "=" ) {
-            // 등호가 아니면 기존 식에 연산자 추가
+            
             $('#disp2').val(cur + opt);
         } else {
-            // 등호(=)일 때 기존 수식을 위쪽 창(disp1)으로 이동
+            
             $('#disp1').val(cur);
 
             let result = 0;
             let num1 = 0, num2 = 0;
 
-            // eval() 없이 연산자별 분리 및 계산 처리 (2항 연산)
+            
             if (cur.includes('+')) {
                 let parts = cur.split('+');
                 num1 = Number(parts[0]);
@@ -60,16 +60,15 @@
                 num2 = Number(parts[1]);
                 result = num1 / num2;
             } else {
-                result = Number(cur); // 연산자가 없을 경우 숫자 그대로 출력
+                result = Number(cur); 
             }
 
-            // 계산 결과를 아래쪽 창(disp2)에 출력
+            
             $('#disp2').val(result);
         }
     });
 
-    // 3. AC 버튼 초기화 이벤트 
-    // (사용자가 HTML을 수정할 필요 없이 value="AC"인 버튼을 자동으로 찾아 작동함)
+    
     $('input[value="AC"]').click(function(){
         $('#disp1').val('');
         $('#disp2').val('');
