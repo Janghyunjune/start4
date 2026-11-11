@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>다크모드 공학용 계산기</title>
+    <style>
+        /* 기본(라이트) 모드 디자인 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            transition: background-color 0.3s ease;
+        }
+
+        .calculator {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 340px;
+            transition: all 0.3s ease;
+        }
+
+        /* 다크모드 디자인 */
+        body.dark-mode {
+            background-color: #121212;
+        }
+        body.dark-mode .calculator {
+            background-color: #1e1e1e;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 디스플레이 영역 */
+        .display-container {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            transition: background 0.3s;
+        }
+        body.dark-mode .display-container {
+            background: #2c2c2c;
+        }
+
+        #display1 {
+            text-align: right;
+            border: none;
+            font-size: 14px;
+            color: #888;
+            background: transparent;
+            outline: none;
+            margin-bottom: 5px;
+        }
+        #display2 {
+            text-align: right;
+            border: none;
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            background: transparent;
+            outline: none;
+        }
+        body.dark-mode #display1 { color: #bbb; }
+        body.dark-mode #display2 { color: #eee; }
+
+        /* 버튼 그리드 */
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            padding: 18px 0;
+            font-size: 18px;
+            border: none;
+            border-radius: 12px;
+            background-color: #f1f3f4;
+            color: #333;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:active { transform: scale(0.95); }
+        button:hover { background-color: #e2e6ea; }
+
+        body.dark-mode button { background-color: #333; color: #fff; }
+        body.dark-mode button:hover { background-color: #444; }
+
+        /* 포인트 컬러 버튼 */
+        .btn-op { background-color: #ff9800; color: #fff; font-size: 22px; }
+        .btn-op:hover { background-color: #fb8c00; }
+        
+        .btn-sci { background-color: #6c757d; color: #fff; font-size: 16px;}
+        .btn-sci:hover { background-color: #5a6268; }
+
+        .btn-clear { background-color: #dc3545; color: white; }
+        .btn-clear:hover { background-color: #c82333; }
+
+        .toggle-btn {
+            grid-column: span 4;
+            background-color: #2196f3;
+            color: white;
+            font-size: 16px;
+        }
+        .toggle-btn:hover { background-color: #1e88e5; }
+        body.dark-mode .toggle-btn { background-color: #0d47a1; }
+    </style>
+</head>
+<body>
+
+<div class="calculator">
+    <div class="display-container">
+        <!-- 수식 표시창 (위쪽) -->
+        <input type="text" id="display1" readonly placeholder="수식">
+        <!-- 결과 표시창 (아래쪽) -->
+        <input type="text" id="display2" readonly placeholder="0">
+    </div>
+    
+    <div class="buttons">
+        <button class="toggle-btn" onclick="toggleDarkMode()">🌙 다크모드 켜기/끄기</button>
+        
+        <!-- 공학용 기능 -->
+        <button class="btn-sci" onclick="calcScientific('sin')">sin</button>
+        <button class="btn-sci" onclick="calcScientific('cos')">cos</button>
+        <button class="btn-sci" onclick="calcScientific('tan')">tan</button>
+        <button class="btn-sci" onclick="calcScientific('sqrt')">√</button>
+
+        <button class="btn-clear" onclick="clearCalculator()">C</button>
+        <button class="btn-sci" onclick="inputOperator('^')">x²</button>
+        <button class="btn-sci" onclick="inputOperator('%')">%</button>
+        <button class="btn-op" onclick="inputOperator('/')">÷</button>
+
+        <button onclick="inputNumber('7')">7</button>
+        <button onclick="inputNumber('8')">8</button>
+        <button onclick="inputNumber('9')">9</button>
+        <button class="btn-op" onclick="inputOperator('*')">×</button>
+
+        <button onclick="inputNumber('4')">4</button>
+        <button onclick="inputNumber('5')">5</button>
+        <button onclick="inputNumber('6')">6</button>
+        <button class="btn-op" onclick="inputOperator('-')">-</button>
+
+        <button onclick="inputNumber('1')">1</button>
+        <button onclick="inputNumber('2')">2</button>
+        <button onclick="inputNumber('3')">3</button>
+        <button class="btn-op" onclick="inputOperator('+')">+</button>
+
+        <button onclick="inputNumber('0')" style="grid-column: span 2;">0</button>
+        <button onclick="inputNumber('.')">.</button>
+        <button class="btn-op" onclick="calculateResult()">=</button>
+    </div>
+</div>
+
+<script>
+    // eval()을 사용하지 않는 2항 연산 기반 계산기 로직
+    const display1 = document.getElementById('display1');
+    const display2 = document.getElementById('display2');
+    
+    let currentInput = ""; // 현재 입력 중인 숫자
+    let previousInput = ""; // 이전에 입력된 숫자
+    let currentOperator = null; // 선택된 연산자
+    let isCalculated = false; // 계산 완료 상태 확인 (연속 계산용)
+
+    // 다크모드 토글 기능
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+    }
+
+    // 초기화 기능 (C 버튼)
+    function clearCalculator() {
+        currentInput = "";
+        previousInput = "";
+        currentOperator = null;
+        display1.value = "";
+        display2.value = "0";
+    }
+
+    // 숫자 버튼 클릭
+    function inputNumber(num) {
+        if (isCalculated) {
+            currentInput = "";
+            isCalculated = false;
+        }
+        // 소수점 중복 방지
+        if (num === '.' && currentInput.includes('.')) return;
+        // 초기값이 0일 때 처리
+        if (currentInput === "0" && num !== ".") currentInput = num;
+        else currentInput += num;
+        
+        display2.value = currentInput;
+    }
+
+    // 사칙연산 버튼 클릭
+    function inputOperator(op) {
+        if (currentInput === "" && previousInput === "") return;
+
+        // 이미 연산자가 있고, 두 피연산자가 모두 입력된 상태에서 연산자를 또 누르면 연속 계산 진행
+        if (currentInput !== "" && previousInput !== "" && currentOperator) {
+            calculateResult(false);
+        }
+
+        currentOperator = op;
+        previousInput = currentInput !== "" ? currentInput : previousInput;
+        currentInput = "";
+        isCalculated = false;
+        
+        display1.value = `${previousInput} ${op}`;
+        display2.value = "";
+    }
+
+    // 공학용 특수 연산 (단항 연산)
+    function calcScientific(func) {
+        if (currentInput === "" && previousInput === "") return;
+        let val = Number(currentInput !== "" ? currentInput : previousInput);
+        let result = 0;
+
+        switch(func) {
+            case 'sin': result = Math.sin(val * Math.PI / 180); break; // 디그리(도) 기준 계산
+            case 'cos': result = Math.cos(val * Math.PI / 180); break;
+            case 'tan': result = Math.tan(val * Math.PI / 180); break;
+            case 'sqrt': result = Math.sqrt(val); break;
+        }
+
+        // 부동소수점 오차 보정을 위해 소수점 아래 8자리로 제한 후 문자열 변환
+        result = parseFloat(result.toFixed(8));
+        
+        display1.value = `${func}(${val})`;
+        display2.value = result;
+        currentInput = String(result);
+        isCalculated = true;
+    }
+
+    // 등호(=) 버튼 클릭 및 실제 계산 로직
+    function calculateResult(showEqualSign = true) {
+        if (previousInput === "" || currentInput === "" || !currentOperator) return;
+
+        // 문자열을 숫자로 변환 (eval 미사용)
+        let num1 = Number(previousInput);
+        let num2 = Number(currentInput);
+        let result = 0;
+
+        switch(currentOperator) {
+            case '+': result = num1 + num2; break;
+            case '-': result = num1 - num2; break;
+            case '*': result = num1 * num2; break;
+            case '/': result = num2 !== 0 ? num1 / num2 : "Error"; break;
+            case '^': result = Math.pow(num1, num2); break;
+            case '%': result = num1 % num2; break;
+        }
+
+        if(result !== "Error") {
+            result = parseFloat(result.toFixed(8)); // 부동소수점 오차 보정
+        }
+
+        if (showEqualSign) {
+            display1.value = `${previousInput} ${currentOperator} ${currentInput} =`;
+        }
+        
+        display2.value = result;
+        
+        // 연속 계산을 위해 결과값을 previousInput에 저장
+        currentInput = String(result);
+        previousInput = "";
+        currentOperator = null;
+        isCalculated = true;
+    }
+</script>
+</body>
+</html>
