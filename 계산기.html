@@ -31,7 +31,8 @@
         if( opt != "=" && opt !== "AC" ) {
             
             $('#disp2').val(cur + opt);
-        } else {
+            
+        } else if ( opt === "=" ) {
             
             $('#disp1').val(cur);
 
