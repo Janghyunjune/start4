@@ -28,7 +28,7 @@
         let cur = $('#disp2').val();
         let opt = $(this).val();
 
-        if( opt != "=" ) {
+        if( opt != "=" && opt !== "AC" ) {
             
             $('#disp2').val(cur + opt);
         } else {
