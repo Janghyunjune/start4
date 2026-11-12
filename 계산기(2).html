@@ -132,11 +132,8 @@
 <body class="dark-mode">
 
 <div class="app-container">
-    <!-- 계산기 본체 -->
     <div class="calculator">
-        <!-- 상단 네비게이션 바 -->
         <div class="top-bar">
-            <!-- 통합 메뉴 -->
             <div style="position: relative;">
                 <button class="icon-btn" onclick="toggleMenu()" title="메뉴">☰</button>
                 <div class="menu-dropdown" id="menuDropdown">
@@ -156,7 +153,6 @@
             <input type="text" id="display2" readonly placeholder="0">
         </div>
         
-        <!-- 공학용 6x5 풀배열 패드 -->
         <div id="scientificPad" class="keypad-section">
             <button class="btn-sci-small" onclick="inputBracket('(')">(</button>
             <button class="btn-sci-small" onclick="inputBracket(')')">)</button>
@@ -194,7 +190,6 @@
             <button class="btn-sci-small" id="btnDegRad" onclick="toggleDegRad()">Rad</button>
         </div>
 
-        <!-- 기본 패드 4x5 -->
         <div class="keypad-section">
             <button class="calc-btn btn-top" onclick="backspace()">
                 <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -227,9 +222,7 @@
         </div>
     </div>
 
-    <!-- 우측 다기능 사이드 패널 -->
     <div class="side-panel" id="sidePanel">
-        <!-- 1. 계산 이력 -->
         <div id="panel-history" class="panel-content">
             <div class="panel-header">
                 <h3>계산 이력</h3>
@@ -237,7 +230,6 @@
             </div>
             <ul class="history-list" id="historyList"></ul>
         </div>
-        <!-- 2. 수학 메모 -->
         <div id="panel-notes" class="panel-content">
             <div class="panel-header">
                 <h3>수학 메모</h3>
@@ -245,7 +237,6 @@
             </div>
             <textarea id="mathNotesArea" placeholder="수식이나 메모를 자유롭게 작성하세요..."></textarea>
         </div>
-        <!-- 3. 변환기 -->
         <div id="panel-converter" class="panel-content">
             <div class="panel-header">
                 <h3>변환기</h3>
@@ -280,7 +271,7 @@
     const display2 = document.getElementById('display2');
     const btnClear = document.getElementById('btnClear');
     
-    // 이중 스택 (실제 연산용 데이터 vs 화면 출력용 텍스트)
+    // 이중 스택 알고리즘: 실제 연산 데이터와 화면 표시용 데이터를 완전히 분리하여 안전하게 평가
     let expressionTokens = []; 
     let displayTokens = [];    
     
@@ -308,14 +299,19 @@
         btnClear.innerText = (currentInput === "0" && expressionTokens.length === 0) ? "AC" : "C";
     }
 
+    // 디스플레이1(상단)에는 지금까지 쌓인 식과 현재 작성중인 식을 실시간으로 표시
     function updateDisplay1() {
-        display1.value = displayTokens.join(' ');
+        if (isCalculated) return;
+        let exprStr = displayTokens.join(' ');
+        if (currentInputDisplay !== "" && currentInputDisplay !== "0") {
+            exprStr += (exprStr ? " " : "") + formatNumber(currentInputDisplay); // 음수 괄호 포맷팅 포함
+        }
+        display1.value = exprStr;
     }
 
     function clearCalculator() {
         if (currentInput !== "0" && currentInput !== "") {
-            currentInput = "0"; 
-            currentInputDisplay = "0";
+            currentInput = "0"; currentInputDisplay = "0";
         } else {
             currentInput = "0"; currentInputDisplay = "0";
             expressionTokens = []; displayTokens = [];
@@ -332,7 +328,7 @@
             if (currentInput === "" || currentInput === "-") {
                 currentInput = "0"; currentInputDisplay = "0";
             }
-            updateDisplay2();
+            updateDisplay2(); updateDisplay1();
         }
     }
 
@@ -340,7 +336,7 @@
         if (currentInput !== "0" && currentInput !== "") {
             currentInput = currentInput.startsWith("-") ? currentInput.slice(1) : "-" + currentInput;
             currentInputDisplay = currentInput;
-            updateDisplay2();
+            updateDisplay2(); updateDisplay1();
         }
     }
 
@@ -356,30 +352,34 @@
             if (num === '.' && currentInput.includes('.')) return;
             currentInput += num; currentInputDisplay += num;
         }
-        updateDisplay2();
+        updateDisplay2(); updateDisplay1();
     }
 
     function inputPercentage() {
         if (currentInput !== "") {
             currentInput = String(Number(currentInput) / 100);
             currentInputDisplay = currentInput;
-            updateDisplay2();
+            updateDisplay2(); updateDisplay1();
         }
     }
 
     function inputBracket(b) {
         if (isCalculated) { clearCalculator(); }
         if (b === '(') {
+            // 암묵적 곱셈 지원 (예: 5(3+2) -> 5 * (3+2))
             if (currentInput !== "" && currentInput !== "0") {
                 expressionTokens.push(currentInput, '*');
-                displayTokens.push(currentInputDisplay, '×');
+                displayTokens.push(formatNumber(currentInputDisplay), '×');
+            }
+            let lastToken = expressionTokens[expressionTokens.length - 1];
+            if ((currentInput === "" || currentInput === "0") && lastToken === ')') {
+                expressionTokens.push('*'); displayTokens.push('×');
             }
             expressionTokens.push('('); displayTokens.push('(');
             currentInput = ""; currentInputDisplay = "";
         } else if (b === ')') {
             if (currentInput !== "") {
-                expressionTokens.push(currentInput);
-                displayTokens.push(currentInputDisplay);
+                expressionTokens.push(currentInput); displayTokens.push(formatNumber(currentInputDisplay));
             }
             expressionTokens.push(')'); displayTokens.push(')');
             currentInput = ""; currentInputDisplay = "";
@@ -389,12 +389,10 @@
 
     function inputOperator(op) {
         if (isCalculated) { 
-            expressionTokens = [currentInput]; 
-            displayTokens = [currentInputDisplay]; 
+            expressionTokens = [currentInput]; displayTokens = [formatNumber(currentInputDisplay)]; 
             isCalculated = false; 
         } else if (currentInput !== "") { 
-            expressionTokens.push(currentInput); 
-            displayTokens.push(currentInputDisplay);
+            expressionTokens.push(currentInput); displayTokens.push(formatNumber(currentInputDisplay));
         }
         
         if (expressionTokens.length > 0) {
@@ -415,16 +413,23 @@
         updateDisplay1();
     }
 
-    // 파이, 자연상수 등 상수 입력
+    // 파이(π), 자연상수(e) 암묵적 연산 완벽 지원
     function inputConstant(type) {
         if (isCalculated) { clearCalculator(); }
         let val = 0; let disp = "";
         if (type === 'π') { val = Math.PI; disp = "π"; }
         else if (type === 'e') { val = Math.E; disp = "e"; }
         else if (type === 'Rand') { val = Math.random(); disp = "Rand"; }
+
+        // 현재 입력된 숫자가 있다면 자동으로 곱하기(×) 연결 (예: 2π -> 2 * π)
+        if (currentInput !== "" && currentInput !== "0") {
+            expressionTokens.push(currentInput, '*');
+            displayTokens.push(formatNumber(currentInputDisplay), '×');
+        }
+        
         currentInput = String(val);
         currentInputDisplay = disp;
-        updateDisplay2();
+        updateDisplay2(); updateDisplay1();
     }
 
     function getAngle(val) { return isDegree ? (val * Math.PI / 180) : val; }
@@ -435,57 +440,59 @@
         let res = 1; for(let i=2; i<=n; i++) res *= i; return res;
     }
 
-    // 삼각함수, 루트 등 단항 연산 (스택을 끊지 않고 현재 입력값만 치환)
+    // 단항 연산자(sin, cos, x² 등) - 스택을 끊지 않고 현재 입력값만 즉시 치환
     function calcUnary(func) {
         if (currentInput === "" && expressionTokens.length === 0) return;
         if (currentInput === "") { currentInput = "0"; currentInputDisplay = "0"; }
         
         let val = Number(currentInput);
         let result = 0; let disp = "";
+        let dispFmt = formatNumber(currentInputDisplay);
 
         switch(func) {
-            case 'x²': result = Math.pow(val, 2); disp = `sqr(${currentInputDisplay})`; break;
-            case 'x³': result = Math.pow(val, 3); disp = `cube(${currentInputDisplay})`; break;
-            case 'eˣ': result = Math.exp(val); disp = `e^(${currentInputDisplay})`; break;
-            case '10ˣ': result = Math.pow(10, val); disp = `10^(${currentInputDisplay})`; break;
-            case '1/x': result = 1 / val; disp = `1/(${currentInputDisplay})`; break;
-            case '²√x': result = Math.sqrt(val); disp = `√(${currentInputDisplay})`; break;
-            case '³√x': result = Math.cbrt(val); disp = `³√(${currentInputDisplay})`; break;
-            case 'ln': result = Math.log(val); disp = `ln(${currentInputDisplay})`; break;
-            case 'log': result = Math.log10(val); disp = `log(${currentInputDisplay})`; break;
-            case 'x!': result = factorial(val); disp = `fact(${currentInputDisplay})`; break;
-            case 'sin': result = Math.sin(getAngle(val)); disp = `sin(${currentInputDisplay})`; break;
-            case 'cos': result = Math.cos(getAngle(val)); disp = `cos(${currentInputDisplay})`; break;
-            case 'tan': result = Math.tan(getAngle(val)); disp = `tan(${currentInputDisplay})`; break;
-            case 'sinh': result = Math.sinh(val); disp = `sinh(${currentInputDisplay})`; break;
-            case 'cosh': result = Math.cosh(val); disp = `cosh(${currentInputDisplay})`; break;
-            case 'tanh': result = Math.tanh(val); disp = `tanh(${currentInputDisplay})`; break;
+            case 'x²': result = Math.pow(val, 2); disp = `${dispFmt}²`; break;
+            case 'x³': result = Math.pow(val, 3); disp = `${dispFmt}³`; break;
+            case 'eˣ': result = Math.exp(val); disp = `e^(${dispFmt})`; break;
+            case '10ˣ': result = Math.pow(10, val); disp = `10^(${dispFmt})`; break;
+            case '1/x': result = 1 / val; disp = `1/(${dispFmt})`; break;
+            case '²√x': result = Math.sqrt(val); disp = `√(${dispFmt})`; break;
+            case '³√x': result = Math.cbrt(val); disp = `³√(${dispFmt})`; break;
+            case 'ln': result = Math.log(val); disp = `ln(${dispFmt})`; break;
+            case 'log': result = Math.log10(val); disp = `log₁₀(${dispFmt})`; break;
+            case 'x!': result = factorial(val); disp = `${dispFmt}!`; break;
+            case 'sin': result = Math.sin(getAngle(val)); disp = `sin(${dispFmt})`; break;
+            case 'cos': result = Math.cos(getAngle(val)); disp = `cos(${dispFmt})`; break;
+            case 'tan': result = Math.tan(getAngle(val)); disp = `tan(${dispFmt})`; break;
+            case 'sinh': result = Math.sinh(val); disp = `sinh(${dispFmt})`; break;
+            case 'cosh': result = Math.cosh(val); disp = `cosh(${dispFmt})`; break;
+            case 'tanh': result = Math.tanh(val); disp = `tanh(${dispFmt})`; break;
         }
         
-        if (result !== "Error") result = parseFloat(result.toFixed(10));
+        if (result !== "Error") result = parseFloat(result.toFixed(10)); // 부동소수점 오차 방지
         
         currentInput = String(result);
         currentInputDisplay = disp;
-        updateDisplay2();
+        updateDisplay2(); updateDisplay1();
     }
 
     function memoryClear() { memoryValue = 0; }
-    function memoryAdd() { memoryValue += Number(currentInput || 0); isCalculated = true; }
-    function memorySub() { memoryValue -= Number(currentInput || 0); isCalculated = true; }
-    function memoryRecall() { currentInput = String(memoryValue); currentInputDisplay = currentInput; updateDisplay2(); }
+    function memoryAdd() { memoryValue += Number(currentInput || 0); }
+    function memorySub() { memoryValue -= Number(currentInput || 0); }
+    function memoryRecall() { currentInput = String(memoryValue); currentInputDisplay = currentInput; updateDisplay2(); updateDisplay1(); }
 
-    function toggle2nd() { alert("2nd 기능은 모바일 브라우저 전용입니다."); }
+    function toggle2nd() { alert("2nd 기능은 모바일 기기 환경 전용입니다."); }
     function toggleDegRad() {
         isDegree = !isDegree;
         document.getElementById('btnDegRad').innerText = isDegree ? "Rad" : "Deg";
         document.getElementById('radLabel').style.display = isDegree ? "none" : "block";
     }
 
-    // eval 없이 스택을 통한 연산자 우선순위 안전 계산기 로직
+    // eval 없이 괄호 및 연산자 우선순위를 모두 지켜내는 안전한 계산기 엔진
     function safeEvaluate(tokens) {
         if (tokens.length === 0) return 0;
         let stack = [...tokens];
 
+        // 0순위: 괄호 내부를 재귀적으로 우선 계산
         while (stack.includes('(')) {
             let lastOpen = stack.lastIndexOf('(');
             let nextClose = stack.indexOf(')', lastOpen);
@@ -496,6 +503,7 @@
         }
 
         let temp = [];
+        // 1순위: 지수 및 루트 (^, yroot, EE)
         for(let i=0; i<stack.length; i++) {
             if(stack[i] === '^' || stack[i] === 'yroot' || stack[i] === 'E') {
                 let op = stack[i];
@@ -508,6 +516,7 @@
         }
         stack = temp; temp = [];
 
+        // 2순위: 곱하기, 나누기
         for(let i=0; i<stack.length; i++) {
             if(stack[i] === '*' || stack[i] === '/') {
                 let op = stack[i];
@@ -518,6 +527,7 @@
         }
         stack = temp;
 
+        // 3순위: 더하기, 빼기
         let res = Number(stack[0]);
         for(let i=1; i<stack.length; i+=2) {
             let op = stack[i];
@@ -528,10 +538,11 @@
         return res !== "Error" ? parseFloat(res.toFixed(10)) : "Error";
     }
 
+    // 최종 결과 계산 (=)
     function calculateResult() {
         if (currentInput !== "") {
             expressionTokens.push(currentInput);
-            displayTokens.push(currentInputDisplay);
+            displayTokens.push(formatNumber(currentInputDisplay));
         }
         if (expressionTokens.length === 0) return;
 
@@ -543,14 +554,14 @@
         let exprStr = displayTokens.join(' ');
         let result = safeEvaluate(expressionTokens);
         
-        display1.value = exprStr + " =";
+        display1.value = exprStr + " ="; // 최종 완료된 수식 보여주기
         currentInput = String(result);
         currentInputDisplay = String(result);
         expressionTokens = []; displayTokens = [];
         
         updateDisplay2();
         addHistory(exprStr, result);
-        isCalculated = true;
+        isCalculated = true; // 최종 계산 완료 플래그 활성화
     }
 
     /* ================= 2. UI 제어 ================= */
@@ -584,7 +595,7 @@
     }
     function clearHistory() { document.getElementById('historyList').innerHTML = ""; }
 
-    /* ================= 3. 변환기 ================= */
+    /* ================= 3. 단위 변환기 ================= */
     const convData = {
         currency: { 
             options: ['KRW (한국)', 'USD (미국)', 'JPY (일본)', 'EUR (유럽)', 'GBP (영국)', 'CNY (중국)', 'CAD (캐나다)', 'AUD (호주)', 'HKD (홍콩)'], 
