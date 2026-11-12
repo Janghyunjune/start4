@@ -7,110 +7,63 @@
     <style>
         * { box-sizing: border-box; }
         
-        /* ---------------- 라이트 모드 (기본) ---------------- */
+        /* ---------------- 라이트 모드 ---------------- */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background: #e5e5ea;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0; background: #e5e5ea;
             transition: background 0.4s ease, color 0.4s ease;
         }
 
-        .app-container {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-        }
+        .app-container { display: flex; gap: 20px; align-items: flex-start; }
 
         .calculator {
-            background-color: #ffffff;
-            padding: 30px 20px 40px 20px;
-            border-radius: 45px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.1), inset 0 0 0 4px #f2f2f7;
-            width: 340px;
-            position: relative;
-            transition: all 0.4s ease;
+            background-color: #ffffff; padding: 30px 20px 40px 20px;
+            border-radius: 45px; box-shadow: 0 20px 50px rgba(0,0,0,0.1), inset 0 0 0 4px #f2f2f7;
+            width: 340px; position: relative; transition: all 0.4s ease;
         }
 
         .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding: 0 10px;
-            position: relative;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding: 0 10px; position: relative;
         }
         .icon-btn {
-            background: #f2f2f7;
-            border: none;
-            color: #ff9f0a;
-            font-size: 18px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.3s;
+            background: #f2f2f7; border: none; color: #ff9f0a; font-size: 18px;
+            width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+            display: flex; justify-content: center; align-items: center; transition: all 0.3s;
         }
         .icon-btn:active { opacity: 0.6; }
 
         .menu-dropdown {
-            position: absolute;
-            top: 45px;
-            left: 10px;
-            background: #ffffff;
-            border: 1px solid #d1d1d6;
-            border-radius: 14px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            width: 170px;
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            z-index: 10;
+            position: absolute; top: 45px; left: 10px; background: #ffffff;
+            border: 1px solid #d1d1d6; border-radius: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            width: 170px; display: none; flex-direction: column; overflow: hidden; z-index: 10;
         }
         .menu-dropdown.show { display: flex; animation: dropDown 0.2s ease; }
         @keyframes dropDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
         .menu-item {
-            background: none;
-            border: none;
-            color: #1c1c1e;
-            padding: 12px 15px;
-            text-align: left;
-            font-size: 15px;
-            cursor: pointer;
-            border-bottom: 1px solid #f2f2f7;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            background: none; border: none; color: #1c1c1e; padding: 12px 15px;
+            text-align: left; font-size: 15px; cursor: pointer; border-bottom: 1px solid #f2f2f7;
+            display: flex; align-items: center; gap: 8px;
         }
-        .menu-item:last-child { border-bottom: none; }
         .menu-item:hover { background: #f2f2f7; }
 
-        .display-container {
-            display: flex;
-            flex-direction: column;
-            padding: 0 10px;
-            margin-bottom: 25px;
-        }
-        #display1 {
-            text-align: right; border: none; font-size: 18px; color: #8e8e93; background: transparent; outline: none; margin-bottom: 5px;
-        }
-        #display2 {
-            text-align: right; border: none; font-size: 64px; font-weight: 300; color: #000000; background: transparent; outline: none; width: 100%; letter-spacing: -1px; padding: 0; transition: color 0.4s ease;
-        }
+        .display-container { display: flex; flex-direction: column; padding: 0 10px; margin-bottom: 20px; position: relative; }
+        
+        #radLabel { position: absolute; left: 15px; bottom: 5px; font-size: 14px; color: #8e8e93; display: none; }
+        
+        #display1 { text-align: right; border: none; font-size: 18px; color: #8e8e93; background: transparent; outline: none; margin-bottom: 5px; }
+        #display2 { text-align: right; border: none; font-size: 64px; font-weight: 300; color: #000000; background: transparent; outline: none; width: 100%; letter-spacing: -1px; padding: 0; transition: color 0.4s ease; }
 
-        .keypad-section {
-            display: flex; flex-wrap: wrap; gap: 12px; width: 300px; margin: 0 auto;
-        }
-        #scientificPad { display: none; margin-bottom: 12px; animation: fadeIn 0.3s ease; }
+        /* 기본 패드 (4열) */
+        .keypad-section { display: flex; flex-wrap: wrap; gap: 12px; width: 300px; margin: 0 auto; }
+        
+        /* 공학용 패드 (6열) - 버튼을 작게하여 레이아웃 유지 */
+        #scientificPad { display: none; gap: 7px; margin-bottom: 12px; width: 300px; margin: 0 auto 12px auto; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* 기본 버튼 디자인 */
         button.calc-btn {
             width: 66px !important; height: 66px !important; border-radius: 33px !important; border: none;
             background-color: #f2f2f7; color: #000000; cursor: pointer; font-size: 28px; font-weight: 400;
@@ -118,61 +71,58 @@
         }
         button.calc-btn:active { filter: brightness(0.9); }
 
+        /* 공학용 작은 버튼 디자인 */
+        button.btn-sci-small {
+            width: 44px !important; height: 44px !important; border-radius: 22px !important; border: none;
+            background-color: #e5e5ea; color: #000000; cursor: pointer; font-size: 14px; font-weight: 400;
+            display: flex; justify-content: center; align-items: center; padding: 0; margin: 0; transition: filter 0.1s, background-color 0.4s, color 0.4s;
+        }
+        button.btn-sci-small:active { filter: brightness(0.9); }
+
         .btn-op { background-color: #ff9f0a !important; color: #fff !important; font-size: 34px !important; }
         .btn-top { background-color: #d1d1d6 !important; color: #000 !important; font-size: 24px !important;}
-        .btn-sci { background-color: #f2f2f7 !important; font-size: 18px !important; }
 
+        /* 사이드 패널 */
         .side-panel {
             width: 0; height: 640px; overflow: hidden; background-color: #ffffff; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1), padding 0.4s, background-color 0.4s;
-            display: flex; flex-direction: column; opacity: 0;
+            transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1), padding 0.4s, background-color 0.4s; display: flex; flex-direction: column; opacity: 0;
         }
         .side-panel.show { width: 340px; padding: 25px; opacity: 1; }
-        .panel-header {
-            display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f2f2f7; padding-bottom: 15px; margin-bottom: 20px; transition: border-color 0.4s;
-        }
-        .panel-header h3 { margin: 0; font-size: 20px; font-weight: 600; color: #1c1c1e; transition: color 0.4s; }
-        
+        .panel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f2f2f7; padding-bottom: 15px; margin-bottom: 20px; }
+        .panel-header h3 { margin: 0; font-size: 20px; font-weight: 600; color: #1c1c1e; }
         .panel-content { display: none; flex-grow: 1; flex-direction: column; }
         .panel-content.active { display: flex; }
-
         .history-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; }
-        .history-list li { text-align: right; margin-bottom: 15px; font-size: 16px; color: #8e8e93; border-bottom: 1px solid #f2f2f7; padding-bottom: 10px; transition: border-color 0.4s; }
-        .history-list li .hist-result { display: block; font-size: 24px; font-weight: 500; color: #1c1c1e; margin-top: 5px; transition: color 0.4s; }
+        .history-list li { text-align: right; margin-bottom: 15px; font-size: 16px; color: #8e8e93; border-bottom: 1px solid #f2f2f7; padding-bottom: 10px; }
+        .history-list li .hist-result { display: block; font-size: 24px; font-weight: 500; color: #1c1c1e; margin-top: 5px; }
 
         #mathNotesArea {
             flex-grow: 1; width: 100%; border: none; resize: none; font-family: inherit; font-size: 18px; line-height: 1.5; color: #1c1c1e; outline: none;
-            background: repeating-linear-gradient(transparent, transparent 31px, #e5e5ea 31px, #e5e5ea 32px); background-attachment: local; transition: color 0.4s, background 0.4s;
+            background: repeating-linear-gradient(transparent, transparent 31px, #e5e5ea 31px, #e5e5ea 32px); background-attachment: local;
         }
 
         .conv-group { margin-bottom: 15px; }
         .conv-group label { display: block; font-size: 14px; color: #8e8e93; margin-bottom: 5px; }
-        .conv-group select, .conv-group input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #d1d1d6; font-size: 16px; outline: none; background: #f2f2f7; transition: background 0.4s, color 0.4s; }
+        .conv-group select, .conv-group input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #d1d1d6; font-size: 16px; outline: none; background: #f2f2f7; }
         .conv-result { margin-top: 20px; padding: 20px; background: #ff9f0a; color: white; border-radius: 15px; text-align: center; font-size: 24px; font-weight: bold; }
-        .btn-action { background: #1c1c1e; color: white; border: none; padding: 12px; border-radius: 12px; font-size: 16px; cursor: pointer; width: 100%; transition: background 0.4s; }
+        .btn-action { background: #1c1c1e; color: white; border: none; padding: 12px; border-radius: 12px; font-size: 16px; cursor: pointer; width: 100%; }
 
-
-        /* ---------------- 다크 모드 (body.dark-mode) ---------------- */
+        /* ---------------- 다크 모드 ---------------- */
         body.dark-mode { background: #121212; }
-        
-        body.dark-mode .calculator {
-            background-color: #000000;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 4px #2c2c2e;
-        }
-
+        body.dark-mode .calculator { background-color: #000000; box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 4px #2c2c2e; }
         body.dark-mode .icon-btn { background: #1c1c1e; }
-        
         body.dark-mode .menu-dropdown { background: #2c2c2e; border: 1px solid #3a3a3c; }
         body.dark-mode .menu-item { color: #ffffff; border-bottom: 1px solid #3a3a3c; }
         body.dark-mode .menu-item:hover { background: #3a3a3c; }
-
         body.dark-mode #display2 { color: #ffffff; }
-
+        
         body.dark-mode button.calc-btn { background-color: #333333; color: #ffffff; }
         body.dark-mode button.calc-btn:active { filter: brightness(1.5); }
         
+        body.dark-mode button.btn-sci-small { background-color: #2c2c2e; color: #ffffff; }
+        body.dark-mode button.btn-sci-small:active { filter: brightness(1.5); }
+        
         body.dark-mode .btn-top { background-color: #a5a5a5 !important; color: #000 !important; }
-        body.dark-mode .btn-sci { background-color: #2c2c2e !important; color: #ffffff !important; }
 
         body.dark-mode .side-panel { background-color: #2c2c2e; color: #ffffff; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
         body.dark-mode .panel-header { border-bottom: 2px solid #3a3a3c; }
@@ -182,8 +132,6 @@
         body.dark-mode #mathNotesArea { color: #ffffff; background: repeating-linear-gradient(transparent, transparent 31px, #3a3a3c 31px, #3a3a3c 32px); }
         body.dark-mode .conv-group select, body.dark-mode .conv-group input { background: #1c1c1e; border: 1px solid #3a3a3c; color: #ffffff; }
         body.dark-mode .btn-action { background: #48484a; }
-        body.dark-mode .btn-action:hover { background: #5c5c5e; }
-
     </style>
 </head>
 <body class="dark-mode">
@@ -204,62 +152,85 @@
                     <button class="menu-item" onclick="openPanel('history'); closeMenu();">🕒 계산 이력</button>
                 </div>
             </div>
-
             <!-- 다크모드 토글 버튼 -->
             <button class="icon-btn" onclick="toggleDarkMode()" title="다크모드 토글">🌗</button>
         </div>
 
         <div class="display-container">
+            <span id="radLabel">Rad</span>
             <input type="text" id="display1" readonly placeholder=" ">
             <input type="text" id="display2" readonly placeholder="0">
         </div>
         
-        <!-- 공학용 확장 패드 (메뉴에서 선택 시 등장) -->
+        <!-- 공학용 6x5 풀배열 패드 -->
         <div id="scientificPad" class="keypad-section">
-            <button class="calc-btn btn-sci" onclick="calcScientific('sin')">sin</button>
-            <button class="calc-btn btn-sci" onclick="calcScientific('cos')">cos</button>
-            <button class="calc-btn btn-sci" onclick="calcScientific('tan')">tan</button>
-            <button class="calc-btn btn-sci" onclick="calcScientific('sqrt')">√</button>
+            <!-- 1열 -->
+            <button class="btn-sci-small" onclick="inputBracket('(')">(</button>
+            <button class="btn-sci-small" onclick="inputBracket(')')">)</button>
+            <button class="btn-sci-small" onclick="memoryClear()">mc</button>
+            <button class="btn-sci-small" onclick="memoryAdd()">m+</button>
+            <button class="btn-sci-small" onclick="memorySub()">m-</button>
+            <button class="btn-sci-small" onclick="memoryRecall()">mr</button>
             
-            <button class="calc-btn btn-sci" onclick="calcScientific('ln')">ln</button>
-            <button class="calc-btn btn-sci" onclick="calcScientific('log')">log</button>
-            <button class="calc-btn btn-sci" onclick="inputOperator('^')">xʸ</button>
-            <button class="calc-btn btn-sci" onclick="calcScientific('pi')">π</button>
+            <!-- 2열 -->
+            <button class="btn-sci-small" onclick="toggle2nd()">2nd</button>
+            <button class="btn-sci-small" onclick="calcUnary('x²')">x²</button>
+            <button class="btn-sci-small" onclick="calcUnary('x³')">x³</button>
+            <button class="btn-sci-small" onclick="inputOperator('^')">xʸ</button>
+            <button class="btn-sci-small" onclick="calcUnary('eˣ')">eˣ</button>
+            <button class="btn-sci-small" onclick="calcUnary('10ˣ')">10ˣ</button>
+            
+            <!-- 3열 -->
+            <button class="btn-sci-small" onclick="calcUnary('1/x')">1/x</button>
+            <button class="btn-sci-small" onclick="calcUnary('²√x')">²√x</button>
+            <button class="btn-sci-small" onclick="calcUnary('³√x')">³√x</button>
+            <button class="btn-sci-small" onclick="inputOperator('yroot')">ʸ√x</button>
+            <button class="btn-sci-small" onclick="calcUnary('ln')">ln</button>
+            <button class="btn-sci-small" onclick="calcUnary('log')">log₁₀</button>
+            
+            <!-- 4열 -->
+            <button class="btn-sci-small" onclick="calcUnary('x!')">x!</button>
+            <button class="btn-sci-small" onclick="calcUnary('sin')">sin</button>
+            <button class="btn-sci-small" onclick="calcUnary('cos')">cos</button>
+            <button class="btn-sci-small" onclick="calcUnary('tan')">tan</button>
+            <button class="btn-sci-small" onclick="inputConstant('e')">e</button>
+            <button class="btn-sci-small" onclick="inputOperator('E')">EE</button>
+            
+            <!-- 5열 -->
+            <button class="btn-sci-small" onclick="inputConstant('Rand')">Rand</button>
+            <button class="btn-sci-small" onclick="calcUnary('sinh')">sinh</button>
+            <button class="btn-sci-small" onclick="calcUnary('cosh')">cosh</button>
+            <button class="btn-sci-small" onclick="calcUnary('tanh')">tanh</button>
+            <button class="btn-sci-small" onclick="inputConstant('π')">π</button>
+            <button class="btn-sci-small" id="btnDegRad" onclick="toggleDegRad()">Rad</button>
         </div>
 
-        <!-- 기본 패드 (iOS 18 배열 캡처본 완벽 적용: 4x5 모든 원형) -->
+        <!-- 기본 패드 4x5 -->
         <div class="keypad-section">
-            <!-- 1열: 백스페이스(⌫), AC/C, %, ÷ -->
             <button class="calc-btn btn-top" onclick="backspace()">
                 <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
-                    <line x1="18" y1="9" x2="12" y2="15"></line>
-                    <line x1="12" y1="9" x2="18" y2="15"></line>
+                    <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><line x1="18" y1="9" x2="12" y2="15"></line><line x1="12" y1="9" x2="18" y2="15"></line>
                 </svg>
             </button>
             <button class="calc-btn btn-top" id="btnClear" onclick="clearCalculator()" style="font-size:22px;">AC</button>
             <button class="calc-btn btn-top" onclick="inputPercentage()">%</button>
             <button class="calc-btn btn-op" onclick="inputOperator('/')">÷</button>
             
-            <!-- 2열 -->
             <button class="calc-btn" onclick="inputNumber('7')">7</button>
             <button class="calc-btn" onclick="inputNumber('8')">8</button>
             <button class="calc-btn" onclick="inputNumber('9')">9</button>
             <button class="calc-btn btn-op" onclick="inputOperator('*')">×</button>
             
-            <!-- 3열 -->
             <button class="calc-btn" onclick="inputNumber('4')">4</button>
             <button class="calc-btn" onclick="inputNumber('5')">5</button>
             <button class="calc-btn" onclick="inputNumber('6')">6</button>
             <button class="calc-btn btn-op" onclick="inputOperator('-')">-</button>
             
-            <!-- 4열 -->
             <button class="calc-btn" onclick="inputNumber('1')">1</button>
             <button class="calc-btn" onclick="inputNumber('2')">2</button>
             <button class="calc-btn" onclick="inputNumber('3')">3</button>
             <button class="calc-btn btn-op" onclick="inputOperator('+')">+</button>
             
-            <!-- 5열 -->
             <button class="calc-btn" onclick="toggleSign()">+/-</button>
             <button class="calc-btn" onclick="inputNumber('0')">0</button>
             <button class="calc-btn" onclick="inputNumber('.')">.</button>
@@ -277,7 +248,6 @@
             </div>
             <ul class="history-list" id="historyList"></ul>
         </div>
-
         <!-- 2. 수학 메모 -->
         <div id="panel-notes" class="panel-content">
             <div class="panel-header">
@@ -286,8 +256,7 @@
             </div>
             <textarea id="mathNotesArea" placeholder="수식이나 메모를 자유롭게 작성하세요..."></textarea>
         </div>
-
-        <!-- 3. 변환기 (환율/길이) -->
+        <!-- 3. 변환기 -->
         <div id="panel-converter" class="panel-content">
             <div class="panel-header">
                 <h3>변환기</h3>
@@ -307,14 +276,8 @@
                 </div>
             </div>
             <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <div class="conv-group" style="flex:1;">
-                    <label>From</label>
-                    <select id="convFrom"></select>
-                </div>
-                <div class="conv-group" style="flex:1;">
-                    <label>To</label>
-                    <select id="convTo"></select>
-                </div>
+                <div class="conv-group" style="flex:1;"><label>From</label><select id="convFrom"></select></div>
+                <div class="conv-group" style="flex:1;"><label>To</label><select id="convTo"></select></div>
             </div>
             <button class="btn-action" onclick="performConversion()">변환하기</button>
             <div class="conv-result" id="convResult">0</div>
@@ -328,70 +291,52 @@
     const display2 = document.getElementById('display2');
     const btnClear = document.getElementById('btnClear');
     
-    let expressionTokens = []; // 항수 무제한 배열(Stack)
+    let expressionTokens = []; 
     let currentInput = "0"; 
     let isCalculated = false; 
+    let memoryValue = 0;
+    let isDegree = true;
 
     // 화면 포맷 (음수일 경우 괄호 표시 추가)
     function formatNumber(numStr) {
         if(!numStr || numStr === "Error" || numStr === "NaN") return numStr || "0";
-        
         let str = numStr.toString();
         let isNegative = str.startsWith("-");
-        
-        // 콤마 처리를 위해 마이너스 기호 임시 제거
-        if (isNegative) {
-            str = str.slice(1);
-        }
-        
+        if (isNegative) str = str.slice(1);
         const parts = str.split(".");
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); 
         let formatted = parts.join(".");
-        
-        // 음수이면 괄호를 씌워서 반환 (예: (-125) )
         return isNegative ? "(-" + formatted + ")" : formatted;
     }
 
-    // 디스플레이 갱신 및 AC/C 동적 전환
     function updateDisplay2(val) { 
         display2.value = formatNumber(val); 
-        if (currentInput === "0" && expressionTokens.length === 0) {
-            btnClear.innerText = "AC";
-        } else {
-            btnClear.innerText = "C";
-        }
+        btnClear.innerText = (currentInput === "0" && expressionTokens.length === 0) ? "AC" : "C";
     }
 
-    // 수식 디스플레이 갱신
     function updateDisplay1() {
         let exprStr = expressionTokens.map(t => {
             if(t === '*') return '×';
             if(t === '/') return '÷';
-            return isNaN(t) ? t : formatNumber(t);
+            if(t === '^') return '^';
+            if(t === 'yroot') return ' yroot ';
+            if(t === 'E') return 'E';
+            return isNaN(t) && t !== '(' && t !== ')' ? t : formatNumber(t);
         }).join(' ');
         display1.value = exprStr;
     }
 
-    // 초기화 및 지우기 로직 (AC / C)
     function clearCalculator() {
         if (currentInput !== "0" && currentInput !== "") {
             currentInput = "0"; 
         } else {
-            currentInput = "0";
-            expressionTokens = []; 
-            display1.value = "";
+            currentInput = "0"; expressionTokens = []; display1.value = "";
         }
-        isCalculated = false;
-        updateDisplay2(currentInput);
+        isCalculated = false; updateDisplay2(currentInput);
     }
 
-    // 백스페이스 (한 글자씩 지우기)
     function backspace() {
-        if (isCalculated) {
-            display1.value = "";
-            isCalculated = false;
-            return;
-        }
+        if (isCalculated) { display1.value = ""; isCalculated = false; return; }
         if (currentInput !== "0" && currentInput !== "") {
             currentInput = currentInput.slice(0, -1);
             if (currentInput === "" || currentInput === "-") currentInput = "0";
@@ -399,7 +344,6 @@
         }
     }
 
-    // +/- 기호 변환 (내부 데이터는 '-' 기호 추가/제거만 수행)
     function toggleSign() {
         if (currentInput !== "0" && currentInput !== "") {
             currentInput = currentInput.startsWith("-") ? currentInput.slice(1) : "-" + currentInput;
@@ -408,15 +352,9 @@
     }
 
     function inputNumber(num) {
-        if (isCalculated) { 
-            expressionTokens = []; 
-            currentInput = "0"; 
-            isCalculated = false; 
-            display1.value = "";
-        }
-        if (currentInput === "0" && num !== ".") {
-            currentInput = num;
-        } else {
+        if (isCalculated) { expressionTokens = []; currentInput = "0"; isCalculated = false; display1.value = ""; }
+        if (currentInput === "0" && num !== ".") currentInput = num;
+        else {
             if (num === '.' && currentInput.includes('.')) return;
             currentInput += num;
         }
@@ -430,60 +368,130 @@
         }
     }
 
+    // 괄호 로직
+    function inputBracket(b) {
+        if (isCalculated) { expressionTokens = []; currentInput = ""; isCalculated = false; display1.value = ""; }
+        if (b === '(') {
+            if (currentInput !== "" && currentInput !== "0") {
+                expressionTokens.push(currentInput, '*');
+            }
+            expressionTokens.push('(');
+            currentInput = "0";
+        } else if (b === ')') {
+            if (currentInput !== "") expressionTokens.push(currentInput);
+            expressionTokens.push(')');
+            currentInput = "";
+        }
+        updateDisplay1();
+    }
+
+    // 연산자 입력
     function inputOperator(op) {
-        if (isCalculated) {
-            expressionTokens = [currentInput];
-            isCalculated = false;
-        } else if (currentInput !== "") {
-            expressionTokens.push(currentInput);
-        } else if (expressionTokens.length > 0) {
+        if (isCalculated) { expressionTokens = [currentInput]; isCalculated = false; } 
+        else if (currentInput !== "") { expressionTokens.push(currentInput); }
+        
+        if (expressionTokens.length > 0) {
             let last = expressionTokens[expressionTokens.length - 1];
-            if (['+', '-', '*', '/', '^'].includes(last)) {
+            if (['+', '-', '*', '/', '^', 'yroot', 'E'].includes(last)) {
                 expressionTokens.pop(); 
             }
         }
         expressionTokens.push(op);
-        currentInput = "";
-        updateDisplay1();
+        currentInput = ""; updateDisplay1();
     }
 
-    // 공학용 특수 단항 연산자
-    function calcScientific(func) {
-        if (currentInput === "" && expressionTokens.length === 0 && func !== 'pi') return;
+    // 상수 기호 입력 (e, π, Rand)
+    function inputConstant(type) {
+        if (isCalculated) { expressionTokens = []; isCalculated = false; display1.value = ""; }
+        let val = 0;
+        if (type === 'π') val = Math.PI;
+        else if (type === 'e') val = Math.E;
+        else if (type === 'Rand') val = Math.random();
+        currentInput = String(val);
+        updateDisplay2(currentInput);
+    }
+
+    function getAngle(val) { return isDegree ? (val * Math.PI / 180) : val; }
+
+    function factorial(n) {
+        if (n < 0 || !Number.isInteger(n)) return "Error";
+        if (n === 0 || n === 1) return 1;
+        let res = 1; for(let i=2; i<=n; i++) res *= i; return res;
+    }
+
+    // 단항 연산 (즉시 적용)
+    function calcUnary(func) {
+        if (currentInput === "" && expressionTokens.length === 0) return;
         let val = Number(currentInput || 0);
         let result = 0; let expr = "";
 
         switch(func) {
-            case 'sin': result = Math.sin(val * Math.PI / 180); expr = `sin(${val})`; break;
-            case 'cos': result = Math.cos(val * Math.PI / 180); expr = `cos(${val})`; break;
-            case 'tan': result = Math.tan(val * Math.PI / 180); expr = `tan(${val})`; break;
-            case 'sqrt': result = Math.sqrt(val); expr = `√${val}`; break;
+            case 'x²': result = Math.pow(val, 2); expr = `sqr(${val})`; break;
+            case 'x³': result = Math.pow(val, 3); expr = `cube(${val})`; break;
+            case 'eˣ': result = Math.exp(val); expr = `e^${val}`; break;
+            case '10ˣ': result = Math.pow(10, val); expr = `10^${val}`; break;
+            case '1/x': result = 1 / val; expr = `1/${val}`; break;
+            case '²√x': result = Math.sqrt(val); expr = `√${val}`; break;
+            case '³√x': result = Math.cbrt(val); expr = `³√${val}`; break;
             case 'ln': result = Math.log(val); expr = `ln(${val})`; break;
             case 'log': result = Math.log10(val); expr = `log(${val})`; break;
-            case 'pi': result = Math.PI; expr = `π`; break;
+            case 'x!': result = factorial(val); expr = `fact(${val})`; break;
+            case 'sin': result = Math.sin(getAngle(val)); expr = `sin(${val})`; break;
+            case 'cos': result = Math.cos(getAngle(val)); expr = `cos(${val})`; break;
+            case 'tan': result = Math.tan(getAngle(val)); expr = `tan(${val})`; break;
+            case 'sinh': result = Math.sinh(val); expr = `sinh(${val})`; break;
+            case 'cosh': result = Math.cosh(val); expr = `cosh(${val})`; break;
+            case 'tanh': result = Math.tanh(val); expr = `tanh(${val})`; break;
         }
-        result = parseFloat(result.toFixed(8));
         
-        display1.value = expr + " =";
+        if (result !== "Error") result = parseFloat(result.toFixed(8));
+        
         currentInput = String(result);
-        expressionTokens = [];
         updateDisplay2(currentInput);
-        addHistory(expr, result);
-        isCalculated = true;
+        isCalculated = true; // 단항 연산 후 바로 결과로 취급
+        display1.value = expr + " =";
     }
 
-    // eval 없이 스택을 통한 연산자 우선순위 안전 계산기 로직
+    // 메모리 기능
+    function memoryClear() { memoryValue = 0; }
+    function memoryAdd() { memoryValue += Number(currentInput || 0); isCalculated = true; }
+    function memorySub() { memoryValue -= Number(currentInput || 0); isCalculated = true; }
+    function memoryRecall() { currentInput = String(memoryValue); updateDisplay2(currentInput); }
+
+    // 2nd 및 Deg/Rad 토글 시각화 기능
+    function toggle2nd() { alert("2nd 기능은 모바일 브라우저 전용입니다."); }
+    function toggleDegRad() {
+        isDegree = !isDegree;
+        document.getElementById('btnDegRad').innerText = isDegree ? "Rad" : "Deg";
+        document.getElementById('radLabel').style.display = isDegree ? "none" : "block";
+    }
+
+    // 괄호 및 우선순위 포함 안전 연산 (eval 절대 미사용)
     function safeEvaluate(tokens) {
         if (tokens.length === 0) return 0;
         let stack = [...tokens];
+
+        // 괄호 최우선 처리 (재귀)
+        while (stack.includes('(')) {
+            let lastOpen = stack.lastIndexOf('(');
+            let nextClose = stack.indexOf(')', lastOpen);
+            if (nextClose === -1) nextClose = stack.length; // 닫는 괄호 없으면 끝까지
+            
+            let innerTokens = stack.slice(lastOpen + 1, nextClose);
+            let innerResult = safeEvaluate(innerTokens);
+            stack.splice(lastOpen, nextClose - lastOpen + 1, String(innerResult));
+        }
+
         let temp = [];
-        
-        // 1순위: 제곱(^)
+        // 1순위: 제곱, 루트, 지수(E)
         for(let i=0; i<stack.length; i++) {
-            if(stack[i] === '^') {
+            if(stack[i] === '^' || stack[i] === 'yroot' || stack[i] === 'E') {
+                let op = stack[i];
                 let prev = Number(temp.pop());
                 let next = Number(stack[++i]);
-                temp.push(Math.pow(prev, next));
+                if (op === '^') temp.push(Math.pow(prev, next));
+                else if (op === 'yroot') temp.push(Math.pow(next, 1/prev));
+                else if (op === 'E') temp.push(prev * Math.pow(10, next));
             } else temp.push(stack[i]);
         }
         stack = temp; temp = [];
@@ -507,22 +515,23 @@
             if (op === '+') res += next;
             else if (op === '-') res -= next;
         }
-        
         return res !== "Error" ? parseFloat(res.toFixed(8)) : "Error";
     }
 
-    // 등호(=) 계산
     function calculateResult() {
         if (currentInput !== "") expressionTokens.push(currentInput);
         if (expressionTokens.length === 0) return;
 
         let last = expressionTokens[expressionTokens.length - 1];
-        if (['+', '-', '*', '/', '^'].includes(last)) expressionTokens.pop();
+        if (['+', '-', '*', '/', '^', 'yroot', 'E'].includes(last)) expressionTokens.pop();
 
         let exprStr = expressionTokens.map(t => {
             if(t === '*') return '×';
             if(t === '/') return '÷';
-            return isNaN(t) ? t : formatNumber(t);
+            if(t === '^') return '^';
+            if(t === 'yroot') return ' yroot ';
+            if(t === 'E') return 'E';
+            return isNaN(t) && t !== '(' && t !== ')' ? t : formatNumber(t);
         }).join(' ');
 
         let result = safeEvaluate(expressionTokens);
@@ -535,7 +544,7 @@
         isCalculated = true;
     }
 
-    /* ================= 2. UI 및 메뉴 제어 로직 ================= */
+    /* ================= 2. UI 제어 ================= */
     function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
     function toggleMenu() { document.getElementById('menuDropdown').classList.toggle('show'); }
     function closeMenu() { document.getElementById('menuDropdown').classList.remove('show'); }
@@ -566,7 +575,7 @@
     }
     function clearHistory() { document.getElementById('historyList').innerHTML = ""; }
 
-    /* ================= 3. 변환기 다국어 지원 로직 ================= */
+    /* ================= 3. 변환기 ================= */
     const convData = {
         currency: { 
             options: ['KRW (한국)', 'USD (미국)', 'JPY (일본)', 'EUR (유럽)', 'GBP (영국)', 'CNY (중국)', 'CAD (캐나다)', 'AUD (호주)', 'HKD (홍콩)'], 
@@ -586,24 +595,14 @@
         });
         toSel.selectedIndex = 1; 
     }
-
-    function fetchCalcValue() {
-        let val = currentInput !== "" ? currentInput : "0";
-        document.getElementById('convAmount').value = val;
-    }
-
+    function fetchCalcValue() { document.getElementById('convAmount').value = currentInput !== "" ? currentInput : "0"; }
     function performConversion() {
         const type = document.getElementById('convType').value;
         const amt = Number(document.getElementById('convAmount').value);
-        const from = document.getElementById('convFrom').value;
-        const to = document.getElementById('convTo').value;
-
         if(isNaN(amt)) return;
-        const baseAmt = amt * convData[type].rates[from];
-        const result = baseAmt / convData[type].rates[to];
-        
-        const fixedLen = type === 'currency' ? 2 : 4;
-        document.getElementById('convResult').innerText = formatNumber(parseFloat(result.toFixed(fixedLen))) + " " + to.split(' ')[0];
+        const from = document.getElementById('convFrom').value, to = document.getElementById('convTo').value;
+        const result = (amt * convData[type].rates[from]) / convData[type].rates[to];
+        document.getElementById('convResult').innerText = formatNumber(parseFloat(result.toFixed(type === 'currency' ? 2 : 4))) + " " + to.split(' ')[0];
     }
 </script>
 </body>
