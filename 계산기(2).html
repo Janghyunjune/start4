@@ -25,7 +25,7 @@
 
         .top-bar {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; padding: 0 10px; position: relative;
+            margin-bottom: 10px; padding: 0 10px; position: relative;
         }
         .icon-btn {
             background: #f2f2f7; border: none; color: #ff9f0a; font-size: 18px;
@@ -49,12 +49,17 @@
         }
         .menu-item:hover { background: #f2f2f7; }
 
-        .display-container { display: flex; flex-direction: column; padding: 0 10px; margin-bottom: 20px; position: relative; }
+        /* 디스플레이 영역 및 아이폰 스타일 Rad 라벨 위치 동기화 */
+        .display-container { 
+            display: flex; flex-direction: column; padding: 0 10px; margin-bottom: 20px; position: relative; 
+        }
         
-        #radLabel { position: absolute; left: 15px; bottom: 5px; font-size: 14px; color: #8e8e93; display: none; }
+        #radLabel { 
+            position: absolute; left: 12px; top: 22px; font-size: 11px; font-weight: 500; color: #8e8e93; display: none; pointer-events: none;
+        }
         
-        #display1 { text-align: right; border: none; font-size: 18px; color: #8e8e93; background: transparent; outline: none; margin-bottom: 5px; }
-        #display2 { text-align: right; border: none; font-size: 64px; font-weight: 300; color: #000000; background: transparent; outline: none; width: 100%; letter-spacing: -1px; padding: 0; transition: color 0.4s ease; }
+        #display1 { text-align: right; border: none; font-size: 18px; color: #8e8e93; background: transparent; outline: none; margin-bottom: 2px; }
+        #display2 { text-align: right; border: none; font-size: 60px; font-weight: 300; color: #000000; background: transparent; outline: none; width: 100%; letter-spacing: -1px; padding: 0; transition: color 0.4s ease; }
 
         .keypad-section { display: flex; flex-wrap: wrap; gap: 12px; width: 300px; margin: 0 auto; }
         
@@ -110,6 +115,7 @@
         body.dark-mode .menu-item { color: #ffffff; border-bottom: 1px solid #3a3a3c; }
         body.dark-mode .menu-item:hover { background: #3a3a3c; }
         body.dark-mode #display2 { color: #ffffff; }
+        body.dark-mode #radLabel { color: #8e8e93; }
         
         body.dark-mode button.calc-btn { background-color: #333333; color: #ffffff; }
         body.dark-mode button.calc-btn:active { filter: brightness(1.5); }
@@ -271,7 +277,6 @@
     const display2 = document.getElementById('display2');
     const btnClear = document.getElementById('btnClear');
     
-    // 이중 스택: 1) 실제 연산용 숫자 스택, 2) 화면 출력용 문자열 스택
     let expressionTokens = []; 
     let displayTokens = [];    
     
@@ -282,12 +287,9 @@
     let memoryValue = 0;
     let isDegree = true;
 
-    // 포맷팅 함수 (π나 sin 등이 섞인 문자는 건드리지 않음)
     function formatNumber(numStr) {
         if(!numStr || numStr === "Error" || numStr === "NaN") return numStr || "0";
         let str = numStr.toString();
-        
-        // 문자가 포함된 복합 수식(예: 2π, sin(30))은 콤마 포맷팅을 무시하고 그대로 반환
         if (/[a-zA-Zπ√!()]/.test(str)) return str;
 
         let isNegative = str.startsWith("-");
@@ -350,8 +352,6 @@
             currentInput = "0"; currentInputDisplay = "0";
             isCalculated = false; display1.value = ""; 
         }
-        
-        // 괄호 닫힌 직후 숫자를 누르면 암묵적 곱셈 지원 (예: (3+4) 5 -> (3+4) * 5)
         if (currentInput === "" && expressionTokens.length > 0) {
             let lastToken = expressionTokens[expressionTokens.length - 1];
             if (lastToken === ')') {
@@ -380,7 +380,6 @@
     function inputBracket(b) {
         if (isCalculated) { clearCalculator(); }
         if (b === '(') {
-            // 암묵적 곱셈: 숫자가 있거나 괄호가 닫힌 후 '('를 누르면 자동으로 '×' 추가
             if (currentInput !== "" && currentInput !== "0") {
                 expressionTokens.push(currentInput, '*');
                 displayTokens.push(formatNumber(currentInputDisplay), '×');
@@ -425,7 +424,6 @@
         updateDisplay1();
     }
 
-    // 파이(π), 자연상수(e) 암묵적 곱셈 완벽 지원 (예: 2π = 2 * 3.14...)
     function inputConstant(type) {
         if (isCalculated) { clearCalculator(); }
         let val = 0; let disp = "";
@@ -433,12 +431,10 @@
         else if (type === 'e') { val = Math.E; disp = "e"; }
         else if (type === 'Rand') { val = Math.random(); disp = "Rand"; }
 
-        // 현재 숫자가 있으면 바로 곱셈 처리 (2π)
         if (currentInput !== "" && currentInput !== "0") {
             val = Number(currentInput) * val;
             disp = formatNumber(currentInputDisplay) + disp; 
         } else if (expressionTokens.length > 0 && expressionTokens[expressionTokens.length - 1] === ')') {
-            // 괄호 뒤 상수도 암묵적 곱셈 처리 (예: (3+4)π -> (3+4) * π)
             expressionTokens.push('*');
             displayTokens.push('×');
         }
@@ -456,14 +452,13 @@
         let res = 1; for(let i=2; i<=n; i++) res *= i; return res;
     }
 
-    // 단항 연산자 - 스택을 초기화하지 않고 현재 값만 '즉시 치환'
     function calcUnary(func) {
         if (currentInput === "" && expressionTokens.length === 0) return;
         if (currentInput === "") { currentInput = "0"; currentInputDisplay = "0"; }
         
         let val = Number(currentInput);
         let result = 0; let disp = "";
-        let dispFmt = formatNumber(currentInputDisplay); // 기존 수식 형태 유지
+        let dispFmt = formatNumber(currentInputDisplay);
 
         switch(func) {
             case 'x²': result = Math.pow(val, 2); disp = `${dispFmt}²`; break;
@@ -485,7 +480,7 @@
         }
         
         if (result !== "Error") {
-            if (Math.abs(result) < 1e-14) result = 0; // JS 부동소수점 오차(sin(PI) 등) 방지
+            if (Math.abs(result) < 1e-14) result = 0; 
             result = parseFloat(result.toPrecision(14)); 
         }
         
@@ -503,15 +498,13 @@
     function toggleDegRad() {
         isDegree = !isDegree;
         document.getElementById('btnDegRad').innerText = isDegree ? "Rad" : "Deg";
-        document.getElementById('radLabel').style.display = isDegree ? "none" : "block";
+        document.getElementById('radLabel').style.display = isDegree ? "block" : "none"; // 아이폰 캡처본처럼 Rad 모드일 때 표시
     }
 
-    // eval() 절대 미사용 - 괄호 및 연산자 우선순위를 지켜내는 커스텀 수학 엔진
     function safeEvaluate(tokens) {
         if (tokens.length === 0) return 0;
         let stack = [...tokens];
 
-        // 0순위: 괄호 내부를 재귀적으로 우선 연산
         while (stack.includes('(')) {
             let lastOpen = stack.lastIndexOf('(');
             let nextClose = stack.indexOf(')', lastOpen);
@@ -522,7 +515,6 @@
         }
 
         let temp = [];
-        // 1순위: 지수 및 루트 (^, yroot, EE)
         for(let i=0; i<stack.length; i++) {
             if(stack[i] === '^' || stack[i] === 'yroot' || stack[i] === 'E') {
                 let op = stack[i];
@@ -535,7 +527,6 @@
         }
         stack = temp; temp = [];
 
-        // 2순위: 곱하기, 나누기
         for(let i=0; i<stack.length; i++) {
             if(stack[i] === '*' || stack[i] === '/') {
                 let op = stack[i];
@@ -546,7 +537,6 @@
         }
         stack = temp;
 
-        // 3순위: 더하기, 빼기
         let res = Number(stack[0]);
         for(let i=1; i<stack.length; i+=2) {
             let op = stack[i];
@@ -562,7 +552,6 @@
         return "Error";
     }
 
-    // 최종 결과 산출 (=)
     function calculateResult() {
         if (currentInput !== "") {
             expressionTokens.push(currentInput);
@@ -578,14 +567,14 @@
         let exprStr = displayTokens.join(' ');
         let result = safeEvaluate(expressionTokens);
         
-        display1.value = exprStr + " ="; // 최종 완료된 수식 보여주기
+        display1.value = exprStr + " ="; 
         currentInput = String(result);
         currentInputDisplay = String(result);
         expressionTokens = []; displayTokens = [];
         
         updateDisplay2();
         addHistory(exprStr, result);
-        isCalculated = true; // 계산 완료 플래그 활성화
+        isCalculated = true; 
     }
 
     /* ================= 2. UI 제어 ================= */
