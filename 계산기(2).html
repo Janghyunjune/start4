@@ -7,7 +7,7 @@
     <style>
         * { box-sizing: border-box; }
         
-        /* ---------------- 라이트 모드 ---------------- */
+        /* ---------------- 라이트/다크 모드 공통 ---------------- */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex; justify-content: center; align-items: center;
@@ -49,17 +49,18 @@
         }
         .menu-item:hover { background: #f2f2f7; }
 
-        /* 디스플레이 영역 및 아이폰 스타일 Rad 라벨 위치 동기화 */
+        /* 결과창 및 아이폰 스타일 Rad 라벨 고정 */
         .display-container { 
             display: flex; flex-direction: column; padding: 0 10px; margin-bottom: 20px; position: relative; 
         }
         
         #radLabel { 
-            position: absolute; left: 12px; top: 22px; font-size: 11px; font-weight: 500; color: #8e8e93; display: none; pointer-events: none;
+            position: absolute; left: 12px; top: 25px; font-size: 11px; font-weight: 500; color: #8e8e93; display: block; pointer-events: none;
+            transition: opacity 0.3s;
         }
         
         #display1 { text-align: right; border: none; font-size: 18px; color: #8e8e93; background: transparent; outline: none; margin-bottom: 2px; }
-        #display2 { text-align: right; border: none; font-size: 60px; font-weight: 300; color: #000000; background: transparent; outline: none; width: 100%; letter-spacing: -1px; padding: 0; transition: color 0.4s ease; }
+        #display2 { text-align: right; border: none; font-size: 56px; font-weight: 300; color: #000000; background: transparent; outline: none; width: 100%; letter-spacing: -1px; padding: 0; }
 
         .keypad-section { display: flex; flex-wrap: wrap; gap: 12px; width: 300px; margin: 0 auto; }
         
@@ -69,14 +70,14 @@
         button.calc-btn {
             width: 66px !important; height: 66px !important; border-radius: 33px !important; border: none;
             background-color: #f2f2f7; color: #000000; cursor: pointer; font-size: 28px; font-weight: 400;
-            display: flex; justify-content: center; align-items: center; padding: 0; margin: 0; transition: filter 0.1s, background-color 0.4s, color 0.4s;
+            display: flex; justify-content: center; align-items: center; padding: 0; margin: 0; transition: filter 0.1s;
         }
         button.calc-btn:active { filter: brightness(0.9); }
 
         button.btn-sci-small {
             width: 44px !important; height: 44px !important; border-radius: 22px !important; border: none;
             background-color: #e5e5ea; color: #000000; cursor: pointer; font-size: 14px; font-weight: 400;
-            display: flex; justify-content: center; align-items: center; padding: 0; margin: 0; transition: filter 0.1s, background-color 0.4s, color 0.4s;
+            display: flex; justify-content: center; align-items: center; padding: 0; margin: 0; transition: filter 0.1s;
         }
         button.btn-sci-small:active { filter: brightness(0.9); }
 
@@ -85,7 +86,7 @@
 
         .side-panel {
             width: 0; height: 640px; overflow: hidden; background-color: #ffffff; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1), padding 0.4s, background-color 0.4s; display: flex; flex-direction: column; opacity: 0;
+            transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1), padding 0.4s; display: flex; flex-direction: column; opacity: 0;
         }
         .side-panel.show { width: 340px; padding: 25px; opacity: 1; }
         .panel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f2f2f7; padding-bottom: 15px; margin-bottom: 20px; }
@@ -272,10 +273,10 @@
 </div>
 
 <script>
-    /* ================= 1. 계산기 코어 로직 (이중 스택 파싱 엔진) ================= */
     const display1 = document.getElementById('display1');
     const display2 = document.getElementById('display2');
     const btnClear = document.getElementById('btnClear');
+    const radLabel = document.getElementById('radLabel');
     
     let expressionTokens = []; 
     let displayTokens = [];    
@@ -285,7 +286,7 @@
 
     let isCalculated = false; 
     let memoryValue = 0;
-    let isDegree = true;
+    let isDegree = true; // 기본 Rad 모드 (아이폰과 동일하게 표시)
 
     function formatNumber(numStr) {
         if(!numStr || numStr === "Error" || numStr === "NaN") return numStr || "0";
@@ -359,7 +360,6 @@
                 displayTokens.push('×');
             }
         }
-
         if (currentInput === "0" && num !== ".") {
             currentInput = num; currentInputDisplay = num;
         } else {
@@ -498,7 +498,7 @@
     function toggleDegRad() {
         isDegree = !isDegree;
         document.getElementById('btnDegRad').innerText = isDegree ? "Rad" : "Deg";
-        document.getElementById('radLabel').style.display = isDegree ? "block" : "none"; // 아이폰 캡처본처럼 Rad 모드일 때 표시
+        radLabel.style.display = isDegree ? "block" : "none"; // 아이폰과 동일하게 Rad 모드일 때만 좌측 상단 표시
     }
 
     function safeEvaluate(tokens) {
