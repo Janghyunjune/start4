@@ -56,14 +56,11 @@
         #display1 { text-align: right; border: none; font-size: 18px; color: #8e8e93; background: transparent; outline: none; margin-bottom: 5px; }
         #display2 { text-align: right; border: none; font-size: 64px; font-weight: 300; color: #000000; background: transparent; outline: none; width: 100%; letter-spacing: -1px; padding: 0; transition: color 0.4s ease; }
 
-        /* 기본 패드 (4열) */
         .keypad-section { display: flex; flex-wrap: wrap; gap: 12px; width: 300px; margin: 0 auto; }
         
-        /* 공학용 패드 (6열) - 버튼을 작게하여 레이아웃 유지 */
         #scientificPad { display: none; gap: 7px; margin-bottom: 12px; width: 300px; margin: 0 auto 12px auto; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 기본 버튼 디자인 */
         button.calc-btn {
             width: 66px !important; height: 66px !important; border-radius: 33px !important; border: none;
             background-color: #f2f2f7; color: #000000; cursor: pointer; font-size: 28px; font-weight: 400;
@@ -71,7 +68,6 @@
         }
         button.calc-btn:active { filter: brightness(0.9); }
 
-        /* 공학용 작은 버튼 디자인 */
         button.btn-sci-small {
             width: 44px !important; height: 44px !important; border-radius: 22px !important; border: none;
             background-color: #e5e5ea; color: #000000; cursor: pointer; font-size: 14px; font-weight: 400;
@@ -82,7 +78,6 @@
         .btn-op { background-color: #ff9f0a !important; color: #fff !important; font-size: 34px !important; }
         .btn-top { background-color: #d1d1d6 !important; color: #000 !important; font-size: 24px !important;}
 
-        /* 사이드 패널 */
         .side-panel {
             width: 0; height: 640px; overflow: hidden; background-color: #ffffff; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1), padding 0.4s, background-color 0.4s; display: flex; flex-direction: column; opacity: 0;
@@ -152,7 +147,6 @@
                     <button class="menu-item" onclick="openPanel('history'); closeMenu();">🕒 계산 이력</button>
                 </div>
             </div>
-            <!-- 다크모드 토글 버튼 -->
             <button class="icon-btn" onclick="toggleDarkMode()" title="다크모드 토글">🌗</button>
         </div>
 
@@ -164,7 +158,6 @@
         
         <!-- 공학용 6x5 풀배열 패드 -->
         <div id="scientificPad" class="keypad-section">
-            <!-- 1열 -->
             <button class="btn-sci-small" onclick="inputBracket('(')">(</button>
             <button class="btn-sci-small" onclick="inputBracket(')')">)</button>
             <button class="btn-sci-small" onclick="memoryClear()">mc</button>
@@ -172,7 +165,6 @@
             <button class="btn-sci-small" onclick="memorySub()">m-</button>
             <button class="btn-sci-small" onclick="memoryRecall()">mr</button>
             
-            <!-- 2열 -->
             <button class="btn-sci-small" onclick="toggle2nd()">2nd</button>
             <button class="btn-sci-small" onclick="calcUnary('x²')">x²</button>
             <button class="btn-sci-small" onclick="calcUnary('x³')">x³</button>
@@ -180,7 +172,6 @@
             <button class="btn-sci-small" onclick="calcUnary('eˣ')">eˣ</button>
             <button class="btn-sci-small" onclick="calcUnary('10ˣ')">10ˣ</button>
             
-            <!-- 3열 -->
             <button class="btn-sci-small" onclick="calcUnary('1/x')">1/x</button>
             <button class="btn-sci-small" onclick="calcUnary('²√x')">²√x</button>
             <button class="btn-sci-small" onclick="calcUnary('³√x')">³√x</button>
@@ -188,7 +179,6 @@
             <button class="btn-sci-small" onclick="calcUnary('ln')">ln</button>
             <button class="btn-sci-small" onclick="calcUnary('log')">log₁₀</button>
             
-            <!-- 4열 -->
             <button class="btn-sci-small" onclick="calcUnary('x!')">x!</button>
             <button class="btn-sci-small" onclick="calcUnary('sin')">sin</button>
             <button class="btn-sci-small" onclick="calcUnary('cos')">cos</button>
@@ -196,7 +186,6 @@
             <button class="btn-sci-small" onclick="inputConstant('e')">e</button>
             <button class="btn-sci-small" onclick="inputOperator('E')">EE</button>
             
-            <!-- 5열 -->
             <button class="btn-sci-small" onclick="inputConstant('Rand')">Rand</button>
             <button class="btn-sci-small" onclick="calcUnary('sinh')">sinh</button>
             <button class="btn-sci-small" onclick="calcUnary('cosh')">cosh</button>
@@ -286,18 +275,22 @@
 </div>
 
 <script>
-    /* ================= 1. 계산기 코어 로직 ================= */
+    /* ================= 1. 계산기 코어 로직 (이중 스택 파싱) ================= */
     const display1 = document.getElementById('display1');
     const display2 = document.getElementById('display2');
     const btnClear = document.getElementById('btnClear');
     
+    // 이중 스택 (실제 연산용 데이터 vs 화면 출력용 텍스트)
     let expressionTokens = []; 
+    let displayTokens = [];    
+    
     let currentInput = "0"; 
+    let currentInputDisplay = "0"; 
+
     let isCalculated = false; 
     let memoryValue = 0;
     let isDegree = true;
 
-    // 화면 포맷 (음수일 경우 괄호 표시 추가)
     function formatNumber(numStr) {
         if(!numStr || numStr === "Error" || numStr === "NaN") return numStr || "0";
         let str = numStr.toString();
@@ -309,106 +302,129 @@
         return isNegative ? "(-" + formatted + ")" : formatted;
     }
 
-    function updateDisplay2(val) { 
-        display2.value = formatNumber(val); 
+    function updateDisplay2() { 
+        let valToDisplay = currentInput === "" ? "0" : currentInput;
+        display2.value = formatNumber(valToDisplay); 
         btnClear.innerText = (currentInput === "0" && expressionTokens.length === 0) ? "AC" : "C";
     }
 
     function updateDisplay1() {
-        let exprStr = expressionTokens.map(t => {
-            if(t === '*') return '×';
-            if(t === '/') return '÷';
-            if(t === '^') return '^';
-            if(t === 'yroot') return ' yroot ';
-            if(t === 'E') return 'E';
-            return isNaN(t) && t !== '(' && t !== ')' ? t : formatNumber(t);
-        }).join(' ');
-        display1.value = exprStr;
+        display1.value = displayTokens.join(' ');
     }
 
     function clearCalculator() {
         if (currentInput !== "0" && currentInput !== "") {
             currentInput = "0"; 
+            currentInputDisplay = "0";
         } else {
-            currentInput = "0"; expressionTokens = []; display1.value = "";
+            currentInput = "0"; currentInputDisplay = "0";
+            expressionTokens = []; displayTokens = [];
+            display1.value = "";
         }
-        isCalculated = false; updateDisplay2(currentInput);
+        isCalculated = false; updateDisplay2();
     }
 
     function backspace() {
         if (isCalculated) { display1.value = ""; isCalculated = false; return; }
         if (currentInput !== "0" && currentInput !== "") {
             currentInput = currentInput.slice(0, -1);
-            if (currentInput === "" || currentInput === "-") currentInput = "0";
-            updateDisplay2(currentInput);
+            currentInputDisplay = currentInput; 
+            if (currentInput === "" || currentInput === "-") {
+                currentInput = "0"; currentInputDisplay = "0";
+            }
+            updateDisplay2();
         }
     }
 
     function toggleSign() {
         if (currentInput !== "0" && currentInput !== "") {
             currentInput = currentInput.startsWith("-") ? currentInput.slice(1) : "-" + currentInput;
-            updateDisplay2(currentInput);
+            currentInputDisplay = currentInput;
+            updateDisplay2();
         }
     }
 
     function inputNumber(num) {
-        if (isCalculated) { expressionTokens = []; currentInput = "0"; isCalculated = false; display1.value = ""; }
-        if (currentInput === "0" && num !== ".") currentInput = num;
-        else {
-            if (num === '.' && currentInput.includes('.')) return;
-            currentInput += num;
+        if (isCalculated) { 
+            expressionTokens = []; displayTokens = []; 
+            currentInput = "0"; currentInputDisplay = "0";
+            isCalculated = false; display1.value = ""; 
         }
-        updateDisplay2(currentInput);
+        if (currentInput === "0" && num !== ".") {
+            currentInput = num; currentInputDisplay = num;
+        } else {
+            if (num === '.' && currentInput.includes('.')) return;
+            currentInput += num; currentInputDisplay += num;
+        }
+        updateDisplay2();
     }
 
     function inputPercentage() {
         if (currentInput !== "") {
             currentInput = String(Number(currentInput) / 100);
-            updateDisplay2(currentInput);
+            currentInputDisplay = currentInput;
+            updateDisplay2();
         }
     }
 
-    // 괄호 로직
     function inputBracket(b) {
-        if (isCalculated) { expressionTokens = []; currentInput = ""; isCalculated = false; display1.value = ""; }
+        if (isCalculated) { clearCalculator(); }
         if (b === '(') {
             if (currentInput !== "" && currentInput !== "0") {
                 expressionTokens.push(currentInput, '*');
+                displayTokens.push(currentInputDisplay, '×');
             }
-            expressionTokens.push('(');
-            currentInput = "0";
+            expressionTokens.push('('); displayTokens.push('(');
+            currentInput = ""; currentInputDisplay = "";
         } else if (b === ')') {
-            if (currentInput !== "") expressionTokens.push(currentInput);
-            expressionTokens.push(')');
-            currentInput = "";
+            if (currentInput !== "") {
+                expressionTokens.push(currentInput);
+                displayTokens.push(currentInputDisplay);
+            }
+            expressionTokens.push(')'); displayTokens.push(')');
+            currentInput = ""; currentInputDisplay = "";
         }
         updateDisplay1();
     }
 
-    // 연산자 입력
     function inputOperator(op) {
-        if (isCalculated) { expressionTokens = [currentInput]; isCalculated = false; } 
-        else if (currentInput !== "") { expressionTokens.push(currentInput); }
+        if (isCalculated) { 
+            expressionTokens = [currentInput]; 
+            displayTokens = [currentInputDisplay]; 
+            isCalculated = false; 
+        } else if (currentInput !== "") { 
+            expressionTokens.push(currentInput); 
+            displayTokens.push(currentInputDisplay);
+        }
         
         if (expressionTokens.length > 0) {
             let last = expressionTokens[expressionTokens.length - 1];
             if (['+', '-', '*', '/', '^', 'yroot', 'E'].includes(last)) {
-                expressionTokens.pop(); 
+                expressionTokens.pop(); displayTokens.pop();
             }
         }
+        
         expressionTokens.push(op);
-        currentInput = ""; updateDisplay1();
+        let dispOp = op;
+        if(op === '*') dispOp = '×';
+        if(op === '/') dispOp = '÷';
+        if(op === 'yroot') dispOp = 'ʸ√';
+        displayTokens.push(dispOp);
+        
+        currentInput = ""; currentInputDisplay = "";
+        updateDisplay1();
     }
 
-    // 상수 기호 입력 (e, π, Rand)
+    // 파이, 자연상수 등 상수 입력
     function inputConstant(type) {
-        if (isCalculated) { expressionTokens = []; isCalculated = false; display1.value = ""; }
-        let val = 0;
-        if (type === 'π') val = Math.PI;
-        else if (type === 'e') val = Math.E;
-        else if (type === 'Rand') val = Math.random();
+        if (isCalculated) { clearCalculator(); }
+        let val = 0; let disp = "";
+        if (type === 'π') { val = Math.PI; disp = "π"; }
+        else if (type === 'e') { val = Math.E; disp = "e"; }
+        else if (type === 'Rand') { val = Math.random(); disp = "Rand"; }
         currentInput = String(val);
-        updateDisplay2(currentInput);
+        currentInputDisplay = disp;
+        updateDisplay2();
     }
 
     function getAngle(val) { return isDegree ? (val * Math.PI / 180) : val; }
@@ -419,46 +435,45 @@
         let res = 1; for(let i=2; i<=n; i++) res *= i; return res;
     }
 
-    // 단항 연산 (즉시 적용)
+    // 삼각함수, 루트 등 단항 연산 (스택을 끊지 않고 현재 입력값만 치환)
     function calcUnary(func) {
         if (currentInput === "" && expressionTokens.length === 0) return;
-        let val = Number(currentInput || 0);
-        let result = 0; let expr = "";
+        if (currentInput === "") { currentInput = "0"; currentInputDisplay = "0"; }
+        
+        let val = Number(currentInput);
+        let result = 0; let disp = "";
 
         switch(func) {
-            case 'x²': result = Math.pow(val, 2); expr = `sqr(${val})`; break;
-            case 'x³': result = Math.pow(val, 3); expr = `cube(${val})`; break;
-            case 'eˣ': result = Math.exp(val); expr = `e^${val}`; break;
-            case '10ˣ': result = Math.pow(10, val); expr = `10^${val}`; break;
-            case '1/x': result = 1 / val; expr = `1/${val}`; break;
-            case '²√x': result = Math.sqrt(val); expr = `√${val}`; break;
-            case '³√x': result = Math.cbrt(val); expr = `³√${val}`; break;
-            case 'ln': result = Math.log(val); expr = `ln(${val})`; break;
-            case 'log': result = Math.log10(val); expr = `log(${val})`; break;
-            case 'x!': result = factorial(val); expr = `fact(${val})`; break;
-            case 'sin': result = Math.sin(getAngle(val)); expr = `sin(${val})`; break;
-            case 'cos': result = Math.cos(getAngle(val)); expr = `cos(${val})`; break;
-            case 'tan': result = Math.tan(getAngle(val)); expr = `tan(${val})`; break;
-            case 'sinh': result = Math.sinh(val); expr = `sinh(${val})`; break;
-            case 'cosh': result = Math.cosh(val); expr = `cosh(${val})`; break;
-            case 'tanh': result = Math.tanh(val); expr = `tanh(${val})`; break;
+            case 'x²': result = Math.pow(val, 2); disp = `sqr(${currentInputDisplay})`; break;
+            case 'x³': result = Math.pow(val, 3); disp = `cube(${currentInputDisplay})`; break;
+            case 'eˣ': result = Math.exp(val); disp = `e^(${currentInputDisplay})`; break;
+            case '10ˣ': result = Math.pow(10, val); disp = `10^(${currentInputDisplay})`; break;
+            case '1/x': result = 1 / val; disp = `1/(${currentInputDisplay})`; break;
+            case '²√x': result = Math.sqrt(val); disp = `√(${currentInputDisplay})`; break;
+            case '³√x': result = Math.cbrt(val); disp = `³√(${currentInputDisplay})`; break;
+            case 'ln': result = Math.log(val); disp = `ln(${currentInputDisplay})`; break;
+            case 'log': result = Math.log10(val); disp = `log(${currentInputDisplay})`; break;
+            case 'x!': result = factorial(val); disp = `fact(${currentInputDisplay})`; break;
+            case 'sin': result = Math.sin(getAngle(val)); disp = `sin(${currentInputDisplay})`; break;
+            case 'cos': result = Math.cos(getAngle(val)); disp = `cos(${currentInputDisplay})`; break;
+            case 'tan': result = Math.tan(getAngle(val)); disp = `tan(${currentInputDisplay})`; break;
+            case 'sinh': result = Math.sinh(val); disp = `sinh(${currentInputDisplay})`; break;
+            case 'cosh': result = Math.cosh(val); disp = `cosh(${currentInputDisplay})`; break;
+            case 'tanh': result = Math.tanh(val); disp = `tanh(${currentInputDisplay})`; break;
         }
         
-        if (result !== "Error") result = parseFloat(result.toFixed(8));
+        if (result !== "Error") result = parseFloat(result.toFixed(10));
         
         currentInput = String(result);
-        updateDisplay2(currentInput);
-        isCalculated = true; // 단항 연산 후 바로 결과로 취급
-        display1.value = expr + " =";
+        currentInputDisplay = disp;
+        updateDisplay2();
     }
 
-    // 메모리 기능
     function memoryClear() { memoryValue = 0; }
     function memoryAdd() { memoryValue += Number(currentInput || 0); isCalculated = true; }
     function memorySub() { memoryValue -= Number(currentInput || 0); isCalculated = true; }
-    function memoryRecall() { currentInput = String(memoryValue); updateDisplay2(currentInput); }
+    function memoryRecall() { currentInput = String(memoryValue); currentInputDisplay = currentInput; updateDisplay2(); }
 
-    // 2nd 및 Deg/Rad 토글 시각화 기능
     function toggle2nd() { alert("2nd 기능은 모바일 브라우저 전용입니다."); }
     function toggleDegRad() {
         isDegree = !isDegree;
@@ -466,24 +481,21 @@
         document.getElementById('radLabel').style.display = isDegree ? "none" : "block";
     }
 
-    // 괄호 및 우선순위 포함 안전 연산 (eval 절대 미사용)
+    // eval 없이 스택을 통한 연산자 우선순위 안전 계산기 로직
     function safeEvaluate(tokens) {
         if (tokens.length === 0) return 0;
         let stack = [...tokens];
 
-        // 괄호 최우선 처리 (재귀)
         while (stack.includes('(')) {
             let lastOpen = stack.lastIndexOf('(');
             let nextClose = stack.indexOf(')', lastOpen);
-            if (nextClose === -1) nextClose = stack.length; // 닫는 괄호 없으면 끝까지
-            
+            if (nextClose === -1) nextClose = stack.length; 
             let innerTokens = stack.slice(lastOpen + 1, nextClose);
             let innerResult = safeEvaluate(innerTokens);
             stack.splice(lastOpen, nextClose - lastOpen + 1, String(innerResult));
         }
 
         let temp = [];
-        // 1순위: 제곱, 루트, 지수(E)
         for(let i=0; i<stack.length; i++) {
             if(stack[i] === '^' || stack[i] === 'yroot' || stack[i] === 'E') {
                 let op = stack[i];
@@ -496,7 +508,6 @@
         }
         stack = temp; temp = [];
 
-        // 2순위: 곱하기, 나누기
         for(let i=0; i<stack.length; i++) {
             if(stack[i] === '*' || stack[i] === '/') {
                 let op = stack[i];
@@ -507,7 +518,6 @@
         }
         stack = temp;
 
-        // 3순위: 더하기, 빼기
         let res = Number(stack[0]);
         for(let i=1; i<stack.length; i+=2) {
             let op = stack[i];
@@ -515,31 +525,30 @@
             if (op === '+') res += next;
             else if (op === '-') res -= next;
         }
-        return res !== "Error" ? parseFloat(res.toFixed(8)) : "Error";
+        return res !== "Error" ? parseFloat(res.toFixed(10)) : "Error";
     }
 
     function calculateResult() {
-        if (currentInput !== "") expressionTokens.push(currentInput);
+        if (currentInput !== "") {
+            expressionTokens.push(currentInput);
+            displayTokens.push(currentInputDisplay);
+        }
         if (expressionTokens.length === 0) return;
 
         let last = expressionTokens[expressionTokens.length - 1];
-        if (['+', '-', '*', '/', '^', 'yroot', 'E'].includes(last)) expressionTokens.pop();
+        if (['+', '-', '*', '/', '^', 'yroot', 'E'].includes(last)) {
+            expressionTokens.pop(); displayTokens.pop();
+        }
 
-        let exprStr = expressionTokens.map(t => {
-            if(t === '*') return '×';
-            if(t === '/') return '÷';
-            if(t === '^') return '^';
-            if(t === 'yroot') return ' yroot ';
-            if(t === 'E') return 'E';
-            return isNaN(t) && t !== '(' && t !== ')' ? t : formatNumber(t);
-        }).join(' ');
-
+        let exprStr = displayTokens.join(' ');
         let result = safeEvaluate(expressionTokens);
         
         display1.value = exprStr + " =";
         currentInput = String(result);
-        expressionTokens = [];
-        updateDisplay2(currentInput);
+        currentInputDisplay = String(result);
+        expressionTokens = []; displayTokens = [];
+        
+        updateDisplay2();
         addHistory(exprStr, result);
         isCalculated = true;
     }
