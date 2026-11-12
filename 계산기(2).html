@@ -6,6 +6,8 @@
     <title>iOS 18 스타일 프리미엄 계산기</title>
     <style>
         * { box-sizing: border-box; }
+        
+        /* ---------------- 라이트 모드 (기본) ---------------- */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex;
@@ -13,11 +15,9 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background: #f2f2f7;
-            transition: background 0.3s ease, color 0.3s ease;
+            background: #e5e5ea; /* 라이트모드 짙은 배경 */
+            transition: background 0.4s ease, color 0.4s ease;
         }
-
-        body.dark-mode { background: #1c1c1e; }
 
         .app-container {
             display: flex;
@@ -25,19 +25,18 @@
             align-items: flex-start;
         }
 
-        /* 계산기 본체 */
+        /* 라이트모드 계산기 본체 */
         .calculator {
-            background-color: #000000;
+            background-color: #ffffff;
             padding: 30px 20px 40px 20px;
             border-radius: 45px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3), inset 0 0 0 4px #2c2c2e;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1), inset 0 0 0 4px #f2f2f7;
             width: 340px;
             position: relative;
-            transition: background 0.3s ease;
+            transition: all 0.4s ease;
         }
-        body.dark-mode .calculator { background-color: #000000; }
 
-        /* 상단 네비게이션 바 & 통합 메뉴 */
+        /* 라이트모드 네비게이션 & 드롭다운 */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -47,7 +46,7 @@
             position: relative;
         }
         .icon-btn {
-            background: #1c1c1e;
+            background: #f2f2f7;
             border: none;
             color: #ff9f0a;
             font-size: 18px;
@@ -58,18 +57,18 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: opacity 0.2s;
+            transition: all 0.3s;
         }
         .icon-btn:active { opacity: 0.6; }
 
-        /* 드롭다운 메뉴 */
         .menu-dropdown {
             position: absolute;
             top: 45px;
             left: 10px;
-            background: #2c2c2e;
+            background: #ffffff;
+            border: 1px solid #d1d1d6;
             border-radius: 14px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             width: 170px;
             display: none;
             flex-direction: column;
@@ -82,20 +81,20 @@
         .menu-item {
             background: none;
             border: none;
-            color: #ffffff;
+            color: #1c1c1e;
             padding: 12px 15px;
             text-align: left;
             font-size: 15px;
             cursor: pointer;
-            border-bottom: 1px solid #3a3a3c;
+            border-bottom: 1px solid #f2f2f7;
             display: flex;
             align-items: center;
             gap: 8px;
         }
         .menu-item:last-child { border-bottom: none; }
-        .menu-item:hover { background: #3a3a3c; }
+        .menu-item:hover { background: #f2f2f7; }
 
-        /* 디스플레이 영역 */
+        /* 라이트모드 디스플레이 */
         .display-container {
             display: flex;
             flex-direction: column;
@@ -103,153 +102,98 @@
             margin-bottom: 25px;
         }
         #display1 {
-            text-align: right;
-            border: none;
-            font-size: 18px;
-            color: #8e8e93;
-            background: transparent;
-            outline: none;
-            margin-bottom: 5px;
+            text-align: right; border: none; font-size: 18px; color: #8e8e93; background: transparent; outline: none; margin-bottom: 5px;
         }
         #display2 {
-            text-align: right;
-            border: none;
-            font-size: 64px;
-            font-weight: 300;
-            color: #ffffff;
-            background: transparent;
-            outline: none;
-            width: 100%;
-            letter-spacing: -1px;
-            padding: 0;
+            text-align: right; border: none; font-size: 64px; font-weight: 300; color: #000000; background: transparent; outline: none; width: 100%; letter-spacing: -1px; padding: 0; transition: color 0.4s ease;
         }
 
-        /* 버튼 키패드 영역 */
+        /* 키패드 및 버튼 */
         .keypad-section {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            width: 300px;
-            margin: 0 auto;
+            display: flex; flex-wrap: wrap; gap: 12px; width: 300px; margin: 0 auto;
         }
-        
-        #scientificPad {
-            display: none; 
-            margin-bottom: 12px;
-            animation: fadeIn 0.3s ease;
-        }
+        #scientificPad { display: none; margin-bottom: 12px; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 모든 버튼 절대 크기 (동그라미 4x5 배열 완벽 보장) */
         button.calc-btn {
-            width: 66px !important;
-            height: 66px !important;
-            border-radius: 33px !important;
-            border: none;
-            background-color: #333333;
-            color: #ffffff;
-            cursor: pointer;
-            font-size: 28px;
-            font-weight: 400;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0;
-            margin: 0;
-            transition: filter 0.1s;
+            width: 66px !important; height: 66px !important; border-radius: 33px !important; border: none;
+            background-color: #f2f2f7; color: #000000; cursor: pointer; font-size: 28px; font-weight: 400;
+            display: flex; justify-content: center; align-items: center; padding: 0; margin: 0; transition: filter 0.1s, background-color 0.4s, color 0.4s;
         }
-        button.calc-btn:active { filter: brightness(1.5); }
+        button.calc-btn:active { filter: brightness(0.9); }
 
         .btn-op { background-color: #ff9f0a !important; color: #fff !important; font-size: 34px !important; }
-        .btn-top { background-color: #a5a5a5 !important; color: #000 !important; font-size: 24px !important;}
-        .btn-sci { background-color: #2c2c2e !important; font-size: 18px !important; }
+        .btn-top { background-color: #d1d1d6 !important; color: #000 !important; font-size: 24px !important;}
+        .btn-sci { background-color: #f2f2f7 !important; font-size: 18px !important; }
 
-        /* 우측 사이드 패널 */
+        /* 라이트모드 사이드 패널 */
         .side-panel {
-            width: 0;
-            height: 640px;
-            overflow: hidden;
-            background-color: #ffffff;
-            border-radius: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1), padding 0.4s;
-            display: flex;
-            flex-direction: column;
-            opacity: 0;
+            width: 0; height: 640px; overflow: hidden; background-color: #ffffff; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1), padding 0.4s, background-color 0.4s;
+            display: flex; flex-direction: column; opacity: 0;
         }
-        body.dark-mode .side-panel {
-            background-color: #2c2c2e;
-            color: #ffffff;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-        .side-panel.show {
-            width: 340px;
-            padding: 25px;
-            opacity: 1;
-        }
+        .side-panel.show { width: 340px; padding: 25px; opacity: 1; }
         .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #f2f2f7;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f2f2f7; padding-bottom: 15px; margin-bottom: 20px; transition: border-color 0.4s;
         }
-        body.dark-mode .panel-header { border-bottom: 2px solid #3a3a3c; }
-        .panel-header h3 { margin: 0; font-size: 20px; font-weight: 600; color: #1c1c1e; }
-        body.dark-mode .panel-header h3 { color: #ffffff; }
+        .panel-header h3 { margin: 0; font-size: 20px; font-weight: 600; color: #1c1c1e; transition: color 0.4s; }
         
         .panel-content { display: none; flex-grow: 1; flex-direction: column; }
         .panel-content.active { display: flex; }
 
-        /* 계산 이력 UI */
         .history-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; }
-        .history-list li {
-            text-align: right; margin-bottom: 15px; font-size: 16px; color: #8e8e93; border-bottom: 1px solid #f2f2f7; padding-bottom: 10px;
-        }
-        body.dark-mode .history-list li { border-bottom: 1px solid #3a3a3c; }
-        .history-list li .hist-result { display: block; font-size: 24px; font-weight: 500; color: #1c1c1e; margin-top: 5px; }
-        body.dark-mode .history-list li .hist-result { color: #ffffff; }
+        .history-list li { text-align: right; margin-bottom: 15px; font-size: 16px; color: #8e8e93; border-bottom: 1px solid #f2f2f7; padding-bottom: 10px; transition: border-color 0.4s; }
+        .history-list li .hist-result { display: block; font-size: 24px; font-weight: 500; color: #1c1c1e; margin-top: 5px; transition: color 0.4s; }
 
-        /* 수학 메모 UI */
         #mathNotesArea {
-            flex-grow: 1;
-            width: 100%;
-            border: none;
-            resize: none;
-            font-family: inherit;
-            font-size: 18px;
-            line-height: 1.5;
-            color: #1c1c1e;
-            outline: none;
-            background: repeating-linear-gradient(transparent, transparent 31px, #e5e5ea 31px, #e5e5ea 32px);
-            background-attachment: local;
-        }
-        body.dark-mode #mathNotesArea {
-            color: #ffffff;
-            background: repeating-linear-gradient(transparent, transparent 31px, #3a3a3c 31px, #3a3a3c 32px);
+            flex-grow: 1; width: 100%; border: none; resize: none; font-family: inherit; font-size: 18px; line-height: 1.5; color: #1c1c1e; outline: none;
+            background: repeating-linear-gradient(transparent, transparent 31px, #e5e5ea 31px, #e5e5ea 32px); background-attachment: local; transition: color 0.4s, background 0.4s;
         }
 
-        /* 변환기 UI */
         .conv-group { margin-bottom: 15px; }
         .conv-group label { display: block; font-size: 14px; color: #8e8e93; margin-bottom: 5px; }
-        .conv-group select, .conv-group input {
-            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #d1d1d6; font-size: 16px; outline: none; background: #f2f2f7;
+        .conv-group select, .conv-group input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #d1d1d6; font-size: 16px; outline: none; background: #f2f2f7; transition: background 0.4s, color 0.4s; }
+        .conv-result { margin-top: 20px; padding: 20px; background: #ff9f0a; color: white; border-radius: 15px; text-align: center; font-size: 24px; font-weight: bold; }
+        .btn-action { background: #1c1c1e; color: white; border: none; padding: 12px; border-radius: 12px; font-size: 16px; cursor: pointer; width: 100%; transition: background 0.4s; }
+
+
+        /* ---------------- 다크 모드 (body.dark-mode) ---------------- */
+        body.dark-mode { background: #121212; }
+        
+        body.dark-mode .calculator {
+            background-color: #000000;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 4px #2c2c2e;
         }
-        body.dark-mode .conv-group select, body.dark-mode .conv-group input {
-            background: #1c1c1e; border: 1px solid #3a3a3c; color: #ffffff;
-        }
-        .conv-result {
-            margin-top: 20px; padding: 20px; background: #ff9f0a; color: white; border-radius: 15px; text-align: center; font-size: 24px; font-weight: bold;
-        }
-        .btn-action {
-            background: #1c1c1e; color: white; border: none; padding: 12px; border-radius: 12px; font-size: 16px; cursor: pointer; width: 100%;
-        }
-        body.dark-mode .btn-action { background: #3a3a3c; }
-        .btn-action:active { opacity: 0.8; }
+
+        body.dark-mode .icon-btn { background: #1c1c1e; }
+        
+        body.dark-mode .menu-dropdown { background: #2c2c2e; border: 1px solid #3a3a3c; }
+        body.dark-mode .menu-item { color: #ffffff; border-bottom: 1px solid #3a3a3c; }
+        body.dark-mode .menu-item:hover { background: #3a3a3c; }
+
+        body.dark-mode #display2 { color: #ffffff; }
+
+        body.dark-mode button.calc-btn { background-color: #333333; color: #ffffff; }
+        body.dark-mode button.calc-btn:active { filter: brightness(1.5); }
+        
+        /* 다크모드 공학/탑 버튼 컬러 반전 */
+        body.dark-mode .btn-top { background-color: #a5a5a5 !important; color: #000 !important; }
+        body.dark-mode .btn-sci { background-color: #2c2c2e !important; color: #ffffff !important; }
+
+        /* 다크모드 사이드 패널 */
+        body.dark-mode .side-panel { background-color: #2c2c2e; color: #ffffff; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        body.dark-mode .panel-header { border-bottom: 2px solid #3a3a3c; }
+        body.dark-mode .panel-header h3 { color: #ffffff; }
+        body.dark-mode .history-list li { border-bottom: 1px solid #3a3a3c; }
+        body.dark-mode .history-list li .hist-result { color: #ffffff; }
+        body.dark-mode #mathNotesArea { color: #ffffff; background: repeating-linear-gradient(transparent, transparent 31px, #3a3a3c 31px, #3a3a3c 32px); }
+        body.dark-mode .conv-group select, body.dark-mode .conv-group input { background: #1c1c1e; border: 1px solid #3a3a3c; color: #ffffff; }
+        body.dark-mode .btn-action { background: #48484a; }
+        body.dark-mode .btn-action:hover { background: #5c5c5e; }
+
     </style>
 </head>
-<body class="dark-mode">
+<body class="dark-mode"> <!-- 기본 설정: 다크모드 -->
 
 <div class="app-container">
     <!-- 계산기 본체 -->
@@ -290,7 +234,7 @@
             <button class="calc-btn btn-sci" onclick="calcScientific('pi')">π</button>
         </div>
 
-        <!-- 기본 패드 (iOS 18 배열 캡처본 완벽 적용: 4x5 모든 원형) -->
+        <!-- 기본 패드 -->
         <div class="keypad-section">
             <!-- 1열: 백스페이스(⌫), AC/C, %, ÷ -->
             <button class="calc-btn btn-top" onclick="backspace()">
